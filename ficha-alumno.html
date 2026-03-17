@@ -1,0 +1,206 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Mi Perfil - ISIMatch</title>
+
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css"
+    />
+    <link rel="stylesheet" href="style.css" />
+  </head>
+
+  <body class="bg-light">
+    <nav class="navbar navbar-light bg-white border-bottom sticky-top">
+      <div class="container">
+        <a
+          class="navbar-brand fw-bold d-flex align-items-center gap-2"
+          href="dashboard-alumno.html"
+        >
+          <i class="bi bi-arrow-left-circle text-muted"></i>
+          <span>Volver a mis clases</span>
+        </a>
+
+        <div class="d-flex align-items-center gap-2">
+          <div class="dropdown">
+            <a
+              class="nav-link dropdown-toggle d-flex align-items-center gap-2"
+              href="#"
+              role="button"
+              data-bs-toggle="dropdown"
+            >
+              <span class="text-muted small d-none d-md-block"
+                >Estás editando tu perfil</span
+              >
+              <img
+                src="https://placehold.co/40x40/FFC947/white?text=A"
+                class="rounded-circle border"
+                alt="Perfil"
+              />
+            </a>
+            <ul class="dropdown-menu dropdown-menu-end border-0 shadow-lg">
+              <li><a class="dropdown-item active" href="#">Mi perfil</a></li>
+              <li>
+                <a class="dropdown-item" href="pagos-alumno.html"
+                  >Pagos y facturación</a
+                >
+              </li>
+              <li><hr class="dropdown-divider" /></li>
+              <li>
+                <a class="dropdown-item text-danger" href="index.html"
+                  >Cerrar sesión</a
+                >
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </nav>
+
+    <div class="container my-5">
+      <div class="row g-4">
+        <div class="col-lg-4">
+          <div class="card card-custom p-4 text-center mb-4">
+            <div class="position-relative d-inline-block mx-auto mb-3">
+              <img
+                src="https://placehold.co/120x120/FFC947/white?text=A"
+                class="rounded-circle border border-4 border-white shadow-sm"
+                alt="Foto Alumno"
+              />
+              <button
+                class="btn btn-sm btn-light position-absolute bottom-0 end-0 rounded-circle border shadow-sm"
+                title="Cambiar foto"
+              >
+                <i class="bi bi-camera-fill"></i>
+              </button>
+            </div>
+            <h4 class="fw-bold mb-1">Alejandro López</h4>
+            <p class="text-muted mb-3">Estudiante</p>
+            <p class="small text-muted">
+              <i class="bi bi-calendar3"></i> Miembro desde Enero 2024
+            </p>
+
+            <hr class="my-4 opacity-10" />
+
+            <div class="row text-center">
+              <div class="col-6 border-end">
+                <h5 class="fw-bold mb-0">12</h5>
+                <small class="text-muted">Clases</small>
+              </div>
+              <div class="col-6">
+                <h5 class="fw-bold mb-0">4.8</h5>
+                <small class="text-muted">Nota media</small>
+              </div>
+            </div>
+          </div>
+
+          <div class="card card-custom p-4">
+            <h5 class="fw-bold mb-3">Tu Progreso</h5>
+            <div class="mb-3">
+              <div class="d-flex justify-content-between small mb-1">
+                <span>Horas de Matemáticas</span>
+                <span class="fw-bold">12h</span>
+              </div>
+              <div class="progress" style="height: 6px">
+                <div
+                  class="progress-bar bg-primary"
+                  role="progressbar"
+                  style="width: 75%"
+                ></div>
+              </div>
+            </div>
+            <div class="mb-3">
+              <div class="d-flex justify-content-between small mb-1">
+                <span>Horas de Inglés</span>
+                <span class="fw-bold">8h</span>
+              </div>
+              <div class="progress" style="height: 6px">
+                <div
+                  class="progress-bar bg-success"
+                  role="progressbar"
+                  style="width: 45%"
+                ></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-lg-8">
+          <div class="card card-custom p-5">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+              <h4 class="fw-bold mb-0">Información Personal</h4>
+              <button class="btn btn-outline-custom btn-sm">
+                <i class="bi bi-pencil"></i> Editar datos
+              </button>
+            </div>
+
+            <form>
+              <div class="row g-3">
+                <div class="col-md-6">
+                  <label class="form-label small text-muted fw-bold"
+                    >NOMBRE</label
+                  >
+                  <input
+                    type="text"
+                    class="form-control"
+                    value="Alejandro"
+                    readonly
+                  />
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label small text-muted fw-bold"
+                    >APELLIDOS</label
+                  >
+                  <input
+                    type="text"
+                    class="form-control"
+                    value="López García"
+                    readonly
+                  />
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label small text-muted fw-bold"
+                    >CORREO ELECTRÓNICO</label
+                  >
+                  <input
+                    type="email"
+                    class="form-control"
+                    value="alumno@ejemplo.com"
+                    readonly
+                  />
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label small text-muted fw-bold"
+                    >TELÉFONO</label
+                  >
+                  <input
+                    type="tel"
+                    class="form-control"
+                    value="+34 600 000 000"
+                    readonly
+                  />
+                </div>
+                <div class="col-12">
+                  <label class="form-label small text-muted fw-bold"
+                    >OBJETIVOS DE APRENDIZAJE</label
+                  >
+                  <textarea class="form-control" rows="3" readonly>
+Quiero mejorar mi nivel de inglés para obtener el certificado B2 y necesito refuerzo en matemáticas para la selectividad.</textarea
+                  >
+                </div>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  </body>
+</html>
