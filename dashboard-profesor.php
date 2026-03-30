@@ -1,3 +1,14 @@
+<?php
+session_start(); // Iniciamos o recuperamos la sesión
+
+// ESCUDO DE SEGURIDAD: 
+// Comprobamos si NO hay una sesión iniciada o si el rol NO es de profesor
+if (!isset($_SESSION['usuario_id']) || $_SESSION['rol'] != 'profesor') {
+    // Si no es un profesor logueado, lo expulsamos al login
+    header("Location: login.php");
+    exit();
+}
+?>
 <!doctype html>
 <html lang="es">
   <head>
@@ -69,7 +80,7 @@
       <div class="container">
         <a
           class="navbar-brand fw-bold d-flex align-items-center gap-2"
-          href="index.html"
+          href="index.php"
         >
           <i class="bi bi-mortarboard-fill text-primary-custom"></i>
           ISIMatch
@@ -87,7 +98,7 @@
         <div class="collapse navbar-collapse" id="navbarDashboard">
           <ul class="navbar-nav ms-auto align-items-center gap-3">
             <li class="nav-item">
-              <a class="nav-link fw-bold active text-primary-custom" href="#">
+              <a class="nav-link fw-bold active text-primary-custom" href="dashboard-profesor.php">
                 <i class="bi bi-grid-fill"></i> Panel
               </a>
             </li>
@@ -193,19 +204,17 @@
                   class="rounded-circle border"
                   alt="Perfil"
                 />
-                <span>Marcos G.</span>
+                <span><?php echo isset($_SESSION['nombre']) ? htmlspecialchars($_SESSION['nombre']) : 'Profesor'; ?></span>
               </a>
 
               <ul class="dropdown-menu dropdown-menu-end border-0 shadow-lg">
                 <li>
-                  <a class="dropdown-item" href="ficha.html">Ver mi perfil</a>
+                  <a class="dropdown-item" href="ficha.php">Ver mi perfil</a>
                 </li>
-                <li><a class="dropdown-item" href="#">Configuración</a></li>
+                <li><a class="dropdown-item" href="configuracion-profesor.php">Configuración</a></li>
                 <li><hr class="dropdown-divider" /></li>
                 <li>
-                  <a class="dropdown-item text-danger" href="index.html"
-                    >Cerrar sesión</a
-                  >
+                  <a class="dropdown-item text-danger" href="logout.php">Cerrar sesión</a>
                 </li>
               </ul>
             </li>

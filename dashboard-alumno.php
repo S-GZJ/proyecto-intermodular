@@ -1,3 +1,14 @@
+<?php
+session_start(); // Iniciamos o recuperamos la sesión
+
+// ESCUDO DE SEGURIDAD: 
+// Comprobamos si NO hay una sesión iniciada o si el rol NO es de alumno
+if (!isset($_SESSION['usuario_id']) || $_SESSION['rol'] != 'alumno') {
+    // Si no es un alumno logueado, lo expulsamos al login
+    header("Location: login.php");
+    exit();
+}
+?>
 <!doctype html>
 <html lang="es">
   <head>
@@ -23,7 +34,7 @@
       <div class="container">
         <a
           class="navbar-brand fw-bold fs-3 d-flex align-items-center gap-2"
-          href="index.html"
+          href="index.php"
         >
           <i class="bi bi-mortarboard-fill text-primary-custom"></i>
           <span>ISIMatch</span>
@@ -43,14 +54,14 @@
             <li class="nav-item">
               <a
                 class="nav-link fw-bold text-primary-custom"
-                href="dashboard-alumno.html"
+                href="dashboard-alumno.php"
               >
                 <i class="bi bi-journal-bookmark-fill"></i> Mis clases
               </a>
             </li>
 
             <li class="nav-item">
-              <a class="nav-link" href="catalogo.html">
+              <a class="nav-link" href="catalogo.php">
                 <i class="bi bi-search"></i> Buscar profesor
               </a>
             </li>
@@ -152,23 +163,23 @@
                   class="rounded-circle border"
                   alt="Perfil"
                 />
-                <span>Alumno</span>
+                <span><?php echo isset($_SESSION['nombre']) ? htmlspecialchars($_SESSION['nombre']) : 'Alumno'; ?></span>
               </a>
 
               <ul class="dropdown-menu dropdown-menu-end border-0 shadow-lg">
                 <li>
-                  <a class="dropdown-item" href="ficha-alumno.html"
+                  <a class="dropdown-item" href="ficha-alumno.php"
                     >Mi perfil</a
                   >
                 </li>
                 <li>
-                  <a class="dropdown-item" href="pagos-alumno.html"
+                  <a class="dropdown-item" href="pagos-alumno.php"
                     >Pagos y facturación</a
                   >
                 </li>
                 <li><hr class="dropdown-divider" /></li>
                 <li>
-                  <a class="dropdown-item text-danger" href="index.html">
+                  <a class="dropdown-item text-danger" href="logout.php">
                     Cerrar sesión
                   </a>
                 </li>
@@ -188,7 +199,7 @@
           </p>
         </div>
         <div class="col-md-4 text-end">
-          <a href="catalogo.html" class="btn btn-primary-custom shadow-sm">
+          <a href="catalogo.php" class="btn btn-primary-custom shadow-sm">
             <i class="bi bi-plus-lg"></i> Reservar nueva clase
           </a>
         </div>
@@ -309,7 +320,7 @@
             <p class="text-muted small">
               Encuentra profesores con disponibilidad inmediata para hoy.
             </p>
-            <a href="catalogo.html" class="btn btn-outline-custom w-100">
+            <a href="catalogo.php" class="btn btn-outline-custom w-100">
               Ver Profesores Online
             </a>
           </div>

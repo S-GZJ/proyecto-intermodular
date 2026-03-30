@@ -1,3 +1,34 @@
+<?php
+session_start();
+
+// 1. ESCUDO DE SEGURIDAD: Comprobamos si es un alumno logueado
+if (!isset($_SESSION['usuario_id']) || $_SESSION['rol'] != 'alumno') {
+    header("Location: login.php");
+    exit();
+}
+
+// 2. CONEXIÓN A LA BASE DE DATOS
+include 'conexion.php';
+
+$usuario_id = $_SESSION['usuario_id'];
+
+// 3. CONSULTA: Buscamos los datos de este usuario específico.
+// Usamos LEFT JOIN por si el alumno aún no tiene datos en la tabla alumnos_detalles
+$sql = "SELECT u.nombre, u.apellidos, u.email, u.telefono, u.fecha_registro, ad.objetivos_aprendizaje 
+        FROM usuarios u 
+        LEFT JOIN alumnos_detalles ad ON u.id = ad.usuario_id 
+        WHERE u.id = '$usuario_id'";
+
+$resultado = $conn->query($sql);
+$datos_usuario = $resultado->fetch_assoc();
+
+// Traducir el mes de registro a español para que quede bonito en el perfil
+$meses = ["January"=>"Enero", "February"=>"Febrero", "March"=>"Marzo", "April"=>"Abril", "May"=>"Mayo", "June"=>"Junio", "July"=>"Julio", "August"=>"Agosto", "September"=>"Septiembre", "October"=>"Octubre", "November"=>"Noviembre", "December"=>"Diciembre"];
+$mes_ingles = date("F", strtotime($datos_usuario['fecha_registro']));
+$anio = date("Y", strtotime($datos_usuario['fecha_registro']));
+$mes_espanol = $meses[$mes_ingles];
+$letra_inicial = strtoupper(substr($datos_usuario['nombre'], 0, 1)); // Para el avatar
+?>
 <!doctype html>
 <html lang="es">
   <head>
@@ -21,7 +52,7 @@
       <div class="container">
         <a
           class="navbar-brand fw-bold d-flex align-items-center gap-2"
-          href="dashboard-alumno.html"
+          href="dashboard-alumno.php"
         >
           <i class="bi bi-arrow-left-circle text-muted"></i>
           <span>Volver a mis clases</span>
@@ -39,7 +70,7 @@
                 >Estás editando tu perfil</span
               >
               <img
-                src="https://placehold.co/40x40/FFC947/white?text=A"
+                src="https://placehold.co/40x40/FFC947/white?text=<?php echo $letra_inicial; ?>"
                 class="rounded-circle border"
                 alt="Perfil"
               />
@@ -47,13 +78,13 @@
             <ul class="dropdown-menu dropdown-menu-end border-0 shadow-lg">
               <li><a class="dropdown-item active" href="#">Mi perfil</a></li>
               <li>
-                <a class="dropdown-item" href="pagos-alumno.html"
+                <a class="dropdown-item" href="pagos-alumno.php"
                   >Pagos y facturación</a
                 >
               </li>
               <li><hr class="dropdown-divider" /></li>
               <li>
-                <a class="dropdown-item text-danger" href="index.html"
+                <a class="dropdown-item text-danger" href="logout.php"
                   >Cerrar sesión</a
                 >
               </li>
@@ -69,7 +100,7 @@
           <div class="card card-custom p-4 text-center mb-4">
             <div class="position-relative d-inline-block mx-auto mb-3">
               <img
-                src="https://placehold.co/120x120/FFC947/white?text=A"
+                src="https://placehold.co/120x120/FFC947/white?text=<?php echo $letra_inicial; ?>"
                 class="rounded-circle border border-4 border-white shadow-sm"
                 alt="Foto Alumno"
               />
@@ -80,21 +111,21 @@
                 <i class="bi bi-camera-fill"></i>
               </button>
             </div>
-            <h4 class="fw-bold mb-1">Alejandro López</h4>
+            <h4 class="fw-bold mb-1"><?php echo htmlspecialchars($datos_usuario['nombre'] . ' ' . $datos_usuario['apellidos']); ?></h4>
             <p class="text-muted mb-3">Estudiante</p>
             <p class="small text-muted">
-              <i class="bi bi-calendar3"></i> Miembro desde Enero 2024
+              <i class="bi bi-calendar3"></i> Miembro desde <?php echo $mes_espanol . " " . $anio; ?>
             </p>
 
             <hr class="my-4 opacity-10" />
 
             <div class="row text-center">
               <div class="col-6 border-end">
-                <h5 class="fw-bold mb-0">12</h5>
+                <h5 class="fw-bold mb-0">0</h5>
                 <small class="text-muted">Clases</small>
               </div>
               <div class="col-6">
-                <h5 class="fw-bold mb-0">4.8</h5>
+                <h5 class="fw-bold mb-0">-</h5>
                 <small class="text-muted">Nota media</small>
               </div>
             </div>
@@ -105,26 +136,26 @@
             <div class="mb-3">
               <div class="d-flex justify-content-between small mb-1">
                 <span>Horas de Matemáticas</span>
-                <span class="fw-bold">12h</span>
+                <span class="fw-bold">0h</span>
               </div>
               <div class="progress" style="height: 6px">
                 <div
                   class="progress-bar bg-primary"
                   role="progressbar"
-                  style="width: 75%"
+                  style="width: 0%"
                 ></div>
               </div>
             </div>
             <div class="mb-3">
               <div class="d-flex justify-content-between small mb-1">
                 <span>Horas de Inglés</span>
-                <span class="fw-bold">8h</span>
+                <span class="fw-bold">0h</span>
               </div>
               <div class="progress" style="height: 6px">
                 <div
                   class="progress-bar bg-success"
                   role="progressbar"
-                  style="width: 45%"
+                  style="width: 0%"
                 ></div>
               </div>
             </div>
@@ -149,7 +180,7 @@
                   <input
                     type="text"
                     class="form-control"
-                    value="Alejandro"
+                    value="<?php echo htmlspecialchars($datos_usuario['nombre']); ?>"
                     readonly
                   />
                 </div>
@@ -160,7 +191,7 @@
                   <input
                     type="text"
                     class="form-control"
-                    value="López García"
+                    value="<?php echo htmlspecialchars($datos_usuario['apellidos']); ?>"
                     readonly
                   />
                 </div>
@@ -171,7 +202,7 @@
                   <input
                     type="email"
                     class="form-control"
-                    value="alumno@ejemplo.com"
+                    value="<?php echo htmlspecialchars($datos_usuario['email']); ?>"
                     readonly
                   />
                 </div>
@@ -182,7 +213,7 @@
                   <input
                     type="tel"
                     class="form-control"
-                    value="+34 600 000 000"
+                    value="<?php echo htmlspecialchars($datos_usuario['telefono'] ?? 'No especificado'); ?>"
                     readonly
                   />
                 </div>
@@ -190,9 +221,7 @@
                   <label class="form-label small text-muted fw-bold"
                     >OBJETIVOS DE APRENDIZAJE</label
                   >
-                  <textarea class="form-control" rows="3" readonly>
-Quiero mejorar mi nivel de inglés para obtener el certificado B2 y necesito refuerzo en matemáticas para la selectividad.</textarea
-                  >
+                  <textarea class="form-control" rows="3" readonly><?php echo htmlspecialchars($datos_usuario['objetivos_aprendizaje'] ?? 'Aún no has definido tus objetivos de aprendizaje.'); ?></textarea>
                 </div>
               </div>
             </form>

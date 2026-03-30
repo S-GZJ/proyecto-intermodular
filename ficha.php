@@ -1,9 +1,41 @@
+<?php
+session_start();
+
+// 1. ESCUDO DE SEGURIDAD: Comprobamos si es un profesor logueado
+if (!isset($_SESSION['usuario_id']) || $_SESSION['rol'] != 'profesor') {
+    header("Location: login.php");
+    exit();
+}
+
+// 2. CONEXIÓN A LA BASE DE DATOS
+include 'conexion.php';
+
+$usuario_id = $_SESSION['usuario_id'];
+
+// 3. CONSULTA: Buscamos los datos de este usuario específico en ambas tablas
+$sql = "SELECT u.nombre, u.apellidos, pd.titulo_profesional, pd.bio, pd.tarifa_hora, pd.valoracion_media, pd.total_resenas 
+        FROM usuarios u 
+        LEFT JOIN profesores_detalles pd ON u.id = pd.usuario_id 
+        WHERE u.id = '$usuario_id'";
+
+$resultado = $conn->query($sql);
+$datos_profesor = $resultado->fetch_assoc();
+
+// 4. PREPARAMOS LAS VARIABLES (Controlando si están vacías al ser un usuario nuevo)
+$nombre_completo = htmlspecialchars($datos_profesor['nombre'] . ' ' . $datos_profesor['apellidos']);
+$titulo = htmlspecialchars($datos_profesor['titulo_profesional'] ?? 'Profesor en ISIMatch');
+$bio = htmlspecialchars($datos_profesor['bio'] ?? 'Aún no has escrito una descripción sobre tus clases. ¡Añádela para atraer a más alumnos!');
+$tarifa = isset($datos_profesor['tarifa_hora']) ? number_format($datos_profesor['tarifa_hora'], 2) : '15.00'; // Por defecto 15.00
+$valoracion = isset($datos_profesor['valoracion_media']) ? number_format($datos_profesor['valoracion_media'], 1) : '0.0';
+$resenas = isset($datos_profesor['total_resenas']) ? $datos_profesor['total_resenas'] : '0';
+$letra_inicial = strtoupper(substr($datos_profesor['nombre'], 0, 1)); // Para el avatar
+?>
 <!doctype html>
 <html lang="es">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Perfil de Marcos - ISIMatch</title>
+    <title>Perfil de <?php echo htmlspecialchars($datos_profesor['nombre']); ?> - ISIMatch</title>
 
     <link
       href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
@@ -23,7 +55,7 @@
       <div class="container">
         <a
           class="navbar-brand fw-bold d-flex align-items-center gap-2"
-          href="dashboard-profesor.html"
+          href="dashboard-profesor.php"
         >
           <i class="bi bi-arrow-left-circle text-muted"></i>
           <span>Volver al Panel</span>
@@ -42,7 +74,7 @@
             <div class="d-flex gap-4 align-items-start">
               <div class="position-relative">
                 <img
-                  src="https://placehold.co/150x150"
+                  src="https://placehold.co/150x150/FFC947/white?text=<?php echo $letra_inicial; ?>"
                   class="rounded-circle shadow-sm"
                   alt="Profesor"
                 />
@@ -56,26 +88,20 @@
               <div class="w-100">
                 <div class="d-flex justify-content-between">
                   <div>
-                    <h2 class="mb-1">Marcos Gómez</h2>
+                    <h2 class="mb-1"><?php echo $nombre_completo; ?></h2>
                     <p class="text-primary-custom fw-bold mb-2">
-                      Profesor de Programación Web
+                      <?php echo $titulo; ?>
                     </p>
                   </div>
 
                   <div class="text-end">
                     <div class="d-flex align-items-center gap-1 text-warning">
                       <i class="bi bi-star-fill"></i>
-                      <span class="fw-bold text-dark fs-5">4.9</span>
-                      <span class="text-muted small">(24 reseñas)</span>
+                      <span class="fw-bold text-dark fs-5"><?php echo $valoracion; ?></span>
+                      <span class="text-muted small">(<?php echo $resenas; ?> reseñas)</span>
                     </div>
                   </div>
                 </div>
-
-                <p class="text-muted mt-3">
-                  Especialista en Frontend con 5 años de experiencia. Me adapto
-                  a tu ritmo de aprendizaje. Enseño HTML, CSS, JavaScript y
-                  React de forma práctica.
-                </p>
 
                 <div class="mt-4">
                   <span class="badge bg-light text-dark border me-2">
@@ -98,12 +124,7 @@
             </div>
 
             <p class="text-muted">
-              ¿Te sientes bloqueado con la programación? Mi objetivo es que
-              entiendas el 'porqué' de las cosas, no solo que copies código.
-              Aprenderás a pensar como un desarrollador, dominando las
-              herramientas más demandadas del mercado actual. Te ayudaré a crear
-              un portafolio sólido y a superar esos conceptos que parecen
-              imposibles de entender de forma sencilla y práctica.
+              <?php echo nl2br($bio); ?>
             </p>
           </div>
         </div>
@@ -115,7 +136,7 @@
           >
             <div class="d-flex justify-content-between align-items-center mb-4">
               <h3 class="mb-0">
-                15€ <span class="fs-6 text-muted fw-normal">/ hora</span>
+                <?php echo str_replace('.', ',', $tarifa); ?>€ <span class="fs-6 text-muted fw-normal">/ hora</span>
               </h3>
               <button class="btn btn-sm btn-link text-muted">
                 <i class="bi bi-pencil"></i>
@@ -135,7 +156,7 @@
               </button>
 
               <a
-                href="dashboard-profesor.html"
+                href="dashboard-profesor.php"
                 class="btn btn-primary-custom py-2 text-decoration-none text-center"
               >
                 <i class="bi bi-calendar-check"></i> Gestionar Disponibilidad
