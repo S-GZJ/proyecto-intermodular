@@ -1,56 +1,45 @@
 <?php
-session_start(); // AÑADIDO: Necesario para iniciar la sesión automáticamente al registrarse
+session_start(); 
 
 // --- MOTOR PHP: PROCESAMIENTO DEL REGISTRO ---
-$error = ""; // Variable para guardar posibles errores (ej. correo duplicado)
+$error = ""; 
 
-// Comprobamos si el formulario se ha enviado
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     
-    // 1. Datos de conexión a tu base de datos XAMPP
     $servidor = "localhost";
     $usuario_db = "root";
     $password_db = "";
     $base_datos = "isimatch";
 
-    // Creamos la conexión
     $conn = new mysqli($servidor, $usuario_db, $password_db, $base_datos);
 
-    // Comprobamos la conexión
     if (!$conn->connect_error) {
         
-        // 2. Recogemos los datos de los inputs usando el atributo 'name'
         $nombre_completo = $conn->real_escape_string($_POST['nombre']);
         $email = $conn->real_escape_string($_POST['email']);
-        // Encriptamos la contraseña por seguridad
         $password = password_hash($_POST['password'], PASSWORD_DEFAULT);
         $rol = $conn->real_escape_string($_POST['rol']);
+        $anio_nacimiento = (int)$_POST['anio_nacimiento'];
         
-        // Separamos el nombre completo en Nombre y Apellido para tu base de datos
         $partes_nombre = explode(" ", $nombre_completo, 2);
         $nombre = $partes_nombre[0];
         $apellidos = isset($partes_nombre[1]) ? $partes_nombre[1] : "";
 
-        // 3. Verificamos si el correo ya existe
         $check_sql = "SELECT id FROM usuarios WHERE email='$email'";
         $resultado = $conn->query($check_sql);
         
         if ($resultado->num_rows > 0) {
             $error = "Ese correo electrónico ya está registrado. Intenta iniciar sesión.";
         } else {
-            // 4. Insertamos en la tabla 'usuarios'
-            $sql = "INSERT INTO usuarios (nombre, apellidos, email, password_hash, rol) 
-                    VALUES ('$nombre', '$apellidos', '$email', '$password', '$rol')";
+            $sql = "INSERT INTO usuarios (nombre, apellidos, email, password_hash, rol, anio_nacimiento) 
+                    VALUES ('$nombre', '$apellidos', '$email', '$password', '$rol', $anio_nacimiento)";
             
             if ($conn->query($sql) === TRUE) {
                 
-                // --- CAMBIOS IMPORTANTES AQUÍ ---
-                // Iniciamos sesión automáticamente con el ID que se acaba de crear en la base de datos
                 $_SESSION['usuario_id'] = $conn->insert_id;
                 $_SESSION['nombre'] = $nombre;
                 $_SESSION['rol'] = $rol;
 
-                // 5. REDIRECCIÓN REAL a los archivos .php
                 if ($rol === "profesor") {
                     header("Location: dashboard-profesor.php");
                 } else {
@@ -127,70 +116,76 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             </div>
 
             <form id="registroForm" action="registro.php" method="POST">
+              
               <div class="mb-3">
-                <label class="form-label small fw-bold text-muted"
-                  >NOMBRE COMPLETO</label
-                >
+                <label class="form-label small fw-bold text-muted">NOMBRE COMPLETO</label>
                 <input
                   type="text"
                   name="nombre"
+                  id="salidaNombre"
                   class="form-control"
                   placeholder="Ej. Juan Pérez"
-                  required
                 />
+                <div id="errorNombre" class="text-danger small mt-1" style="display: none;">
+                  El nombre debe tener al menos 3 caracteres.
+                </div>
               </div>
 
               <div class="mb-3">
-                <label class="form-label small fw-bold text-muted"
-                  >CORREO ELECTRÓNICO</label
-                >
+                <label class="form-label small fw-bold text-muted">CORREO ELECTRÓNICO</label>
                 <input
-                  type="email"
+                  type="text"
                   name="email"
+                  id="salidaEmail"
                   class="form-control"
                   placeholder="juan@ejemplo.com"
-                  required
                 />
+                <div id="errorEmail" class="text-danger small mt-1" style="display: none;">
+                  Por favor, ingresa un correo electrónico válido.
+                </div>
               </div>
 
               <div class="row mb-3">
                 <div class="col-6">
-                  <label class="form-label small fw-bold text-muted"
-                    >AÑO NACIMIENTO</label
-                  >
+                  <label class="form-label small fw-bold text-muted">AÑO NACIMIENTO</label>
                   <input
                     type="number"
                     name="anio_nacimiento"
+                    id="salidaAño"
                     class="form-control"
                     placeholder="2000"
-                    required
                   />
+                  <div id="errorAño" class="text-danger small mt-1" style="display: none;">
+                    Ingresa un año válido (ej. 1995).
+                  </div>
                 </div>
 
                 <div class="col-6">
-                  <label class="form-label small fw-bold text-muted"
-                    >CONTRASEÑA</label
-                  >
+                  <label class="form-label small fw-bold text-muted">CONTRASEÑA</label>
                   <input
                     type="password"
                     name="password"
+                    id="salidaContraseña"
                     class="form-control"
                     placeholder="********"
-                    required
                   />
+                  <div id="errorContraseña" class="text-danger small mt-1" style="display: none;">
+                    Mínimo 6 caracteres.
+                  </div>
                 </div>
               </div>
 
               <div class="mb-4">
-                <label class="form-label small fw-bold text-muted"
-                  >INTERÉS PRINCIPAL</label
-                >
-                <select class="form-select" name="interes">
-                  <option selected>Selecciona una materia...</option>
+                <label class="form-label small fw-bold text-muted">INTERÉS PRINCIPAL</label>
+                <select class="form-select" name="interes" id="salidaInteres">
+                  <option value="" disabled selected>Selecciona una materia...</option>
                   <option value="matematicas">Matemáticas</option>
                   <option value="idiomas">Idiomas</option>
                   <option value="programacion">Programación</option>
                 </select>
+                <div id="errorInteres" class="text-danger small mt-1" style="display: none;">
+                  Selecciona una materia principal.
+                </div>
               </div>
 
               <div class="mb-4 form-check">
@@ -199,31 +194,26 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                   class="form-check-input"
                   id="terminos"
                   name="terminos"
-                  required
                 />
                 <label class="form-check-label small text-muted" for="terminos">
                   Acepto los
-                  <a href="terminos.html" class="text-primary-custom"
-                    >términos y condiciones</a
-                  >
+                  <a href="terminos.html" class="text-primary-custom">términos y condiciones</a>
                 </label>
+                <div id="errorTerminos" class="text-danger small mt-1" style="display: none;">
+                  Debes aceptar los términos para continuar.
+                </div>
               </div>
 
               <input type="hidden" id="rol" name="rol" value="" />
 
-              <button
-                type="submit"
-                class="btn btn-primary-custom w-100 py-3 shadow-sm"
-              >
+              <button type="submit" class="btn btn-primary-custom w-100 py-3 shadow-sm">
                 CREAR CUENTA GRATIS
               </button>
             </form>
 
             <p class="text-center mt-4 small text-muted">
               ¿Ya tienes cuenta?
-              <a href="login.php" class="text-primary-custom fw-bold"
-                >Inicia sesión</a
-              >
+              <a href="login.php" class="text-primary-custom fw-bold">Inicia sesión</a>
             </p>
           </div>
         </div>
@@ -231,8 +221,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     </div>
 
     <script>
-      /**Esta función es para el rol seleccionado
-       * La función principal es marcar cual has elegido y guardar el seleccionado*/
+      /** Función para seleccionar rol */
       function selectRole(role) {
         document
           .querySelectorAll(".role-card")
@@ -241,7 +230,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         document.getElementById("rol").value = role;
       }
 
-      /** Al cargar la página, comprueba si hay un rol preseleccionado en la URL*/
       window.onload = function () {
         const urlParams = new URLSearchParams(window.location.search);
         const rolPreseleccionado = urlParams.get("rol");
@@ -249,26 +237,99 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         else if (rolPreseleccionado === "alumno") selectRole("alumno");
       };
 
-      /** * Ahora este script solo valida que se haya elegido un rol.
-       * Si todo está bien, permite que el navegador envíe el formulario a PHP de forma natural.
-       */
-      document
-        .getElementById("registroForm")
-        .addEventListener("submit", function (evento) {
-          
-          const rol = document.getElementById("rol").value;
-          
-          // Si no hay rol seleccionado, paramos el formulario
-          if (!rol) {
-            evento.preventDefault(); 
-            alert("Por favor, selecciona si eres Alumno o Profesor.");
-            return;
-          }
+      /** * FUNCIÓN Cambia el borde a rojo/verde y muestra/oculta el mensaje */
+      function mostrarError(salidaId, errorId, hayError) {
+        const salida = document.getElementById(salidaId);
+        const mensajeError = document.getElementById(errorId);
+        
+        if (hayError) {
+          salida.style.borderColor = "red"; // Rojo
+          mensajeError.style.display = "block";
+        } else {
+          salida.style.borderColor = "green"; // Verde
+          mensajeError.style.display = "none";
+        }
+      }
 
-          // Cambia el botón para dar feedback visual, pero dejamos que continúe el envío a PHP
+      /** VALIDACIÓN AL ENVIAR*/
+      document.getElementById("registroForm").addEventListener("submit", function (evento) {
+        evento.preventDefault(); 
+        let esValido = true;
+
+        // Validar Rol
+        const rol = document.getElementById("rol").value;
+        if (!rol) {
+          alert("Por favor, selecciona si eres Alumno o Profesor en las tarjetas superiores");
+          esValido = false;
+        }
+
+        // Validar Nombre
+        const nombreValor = document.getElementById("salidaNombre").value.trim();
+        if (nombreValor.length < 3) {
+          mostrarError("salidaNombre", "errorNombre", true);
+          esValido = false;
+        } else {
+          mostrarError("salidaNombre", "errorNombre", false);
+        }
+
+        // Validar Email 
+        const emailValor = document.getElementById("salidaEmail").value;
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(emailValor)) {
+          mostrarError("salidaEmail", "errorEmail", true);
+          esValido = false;
+        } else {
+          mostrarError("salidaEmail", "errorEmail", false);
+        }
+
+        // Validar Año Nacimiento (Lógico)
+        const añoValor = parseInt(document.getElementById("salidaAño").value);
+        const añoActual = new Date().getFullYear();
+        if (isNaN(añoValor) || añoValor < (añoActual - 100) || añoValor > (añoActual - 10)) {
+          mostrarError("salidaAño", "errorAño", true);
+          esValido = false;
+        } else {
+          mostrarError("salidaAño", "errorAño", false);
+        }
+
+        // Validar Contraseña (CORREGIDO: passValor no existía, ahora usa contraseñaValor)
+        const contraseñaValor = document.getElementById("salidaContraseña").value;
+        if (contraseñaValor.length < 6) {
+          mostrarError("salidaContraseña", "errorContraseña", true);
+          esValido = false;
+        } else {
+          mostrarError("salidaContraseña", "errorContraseña", false);
+        }
+
+        // Validar Select Interés
+        const interesValor = document.getElementById("salidaInteres").value;
+        if (interesValor === "") {
+          mostrarError("salidaInteres", "errorInteres", true);
+          esValido = false;
+        } else {
+          mostrarError("salidaInteres", "errorInteres", false);
+        }
+
+        // Validar Checkbox Términos
+        const checkTerminos = document.getElementById("terminos");
+        const errorTerminos = document.getElementById("errorTerminos");
+        if (!checkTerminos.checked) {
+          checkTerminos.style.outline = "1px solid red";
+          errorTerminos.style.display = "block";
+          esValido = false;
+        } else {
+          checkTerminos.style.outline = "none";
+          errorTerminos.style.display = "none";
+        }
+
+        // Si no hay errores, se envía al PHP
+        if (esValido) {
           const boton = this.querySelector('button[type="submit"]');
           boton.innerText = "CREANDO CUENTA...";
-        });
+          boton.disabled = true;
+          this.submit(); 
+        }
+      });
     </script>
   </body>
 </html>

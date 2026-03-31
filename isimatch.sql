@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1
--- Tiempo de generación: 30-03-2026 a las 12:54:20
+-- Tiempo de generación: 31-03-2026 a las 12:26:43
 -- Versión del servidor: 10.4.32-MariaDB
 -- Versión de PHP: 8.2.12
 
@@ -54,6 +54,20 @@ CREATE TABLE `clases` (
 -- --------------------------------------------------------
 
 --
+-- Estructura de tabla para la tabla `disponibilidad_profesor`
+--
+
+CREATE TABLE `disponibilidad_profesor` (
+  `id` int(11) NOT NULL,
+  `profesor_id` int(11) NOT NULL,
+  `dia_semana` enum('Lunes','Martes','Miercoles','Jueves','Viernes','Sabado','Domingo') NOT NULL,
+  `hora_inicio` time NOT NULL,
+  `hora_fin` time NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
 -- Estructura de tabla para la tabla `materias`
 --
 
@@ -75,6 +89,22 @@ CREATE TABLE `mensajes` (
   `contenido` text NOT NULL,
   `leido` tinyint(1) DEFAULT 0,
   `fecha_envio` timestamp NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `metodos_pago_guardados`
+--
+
+CREATE TABLE `metodos_pago_guardados` (
+  `id` int(11) NOT NULL,
+  `usuario_id` int(11) NOT NULL,
+  `tipo_tarjeta` varchar(20) DEFAULT NULL,
+  `ultimos_digitos` varchar(4) NOT NULL,
+  `mes_expiracion` varchar(2) NOT NULL,
+  `anio_expiracion` varchar(4) NOT NULL,
+  `es_principal` tinyint(1) DEFAULT 0
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
@@ -107,6 +137,18 @@ CREATE TABLE `profesores_detalles` (
   `video_presentacion` varchar(255) DEFAULT NULL,
   `valoracion_media` decimal(3,2) DEFAULT 0.00,
   `total_resenas` int(11) DEFAULT 0
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `profesor_idiomas`
+--
+
+CREATE TABLE `profesor_idiomas` (
+  `profesor_id` int(11) NOT NULL,
+  `idioma` varchar(50) NOT NULL,
+  `nivel` varchar(50) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
@@ -165,6 +207,7 @@ CREATE TABLE `usuarios` (
   `apellidos` varchar(100) NOT NULL,
   `email` varchar(100) NOT NULL,
   `password_hash` varchar(255) NOT NULL,
+  `anio_nacimiento` int(11) DEFAULT NULL,
   `rol` enum('alumno','profesor','admin') NOT NULL,
   `telefono` varchar(20) DEFAULT NULL,
   `foto_perfil` varchar(255) DEFAULT 'default.png',
@@ -191,6 +234,13 @@ ALTER TABLE `clases`
   ADD KEY `materia_id` (`materia_id`);
 
 --
+-- Indices de la tabla `disponibilidad_profesor`
+--
+ALTER TABLE `disponibilidad_profesor`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `profesor_id` (`profesor_id`);
+
+--
 -- Indices de la tabla `materias`
 --
 ALTER TABLE `materias`
@@ -206,6 +256,13 @@ ALTER TABLE `mensajes`
   ADD KEY `destinatario_id` (`destinatario_id`);
 
 --
+-- Indices de la tabla `metodos_pago_guardados`
+--
+ALTER TABLE `metodos_pago_guardados`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `usuario_id` (`usuario_id`);
+
+--
 -- Indices de la tabla `pagos`
 --
 ALTER TABLE `pagos`
@@ -218,6 +275,12 @@ ALTER TABLE `pagos`
 --
 ALTER TABLE `profesores_detalles`
   ADD PRIMARY KEY (`usuario_id`);
+
+--
+-- Indices de la tabla `profesor_idiomas`
+--
+ALTER TABLE `profesor_idiomas`
+  ADD PRIMARY KEY (`profesor_id`,`idioma`);
 
 --
 -- Indices de la tabla `profesor_materias`
@@ -260,6 +323,12 @@ ALTER TABLE `clases`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
+-- AUTO_INCREMENT de la tabla `disponibilidad_profesor`
+--
+ALTER TABLE `disponibilidad_profesor`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
 -- AUTO_INCREMENT de la tabla `materias`
 --
 ALTER TABLE `materias`
@@ -269,6 +338,12 @@ ALTER TABLE `materias`
 -- AUTO_INCREMENT de la tabla `mensajes`
 --
 ALTER TABLE `mensajes`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT de la tabla `metodos_pago_guardados`
+--
+ALTER TABLE `metodos_pago_guardados`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
@@ -314,11 +389,23 @@ ALTER TABLE `clases`
   ADD CONSTRAINT `clases_ibfk_3` FOREIGN KEY (`materia_id`) REFERENCES `materias` (`id`);
 
 --
+-- Filtros para la tabla `disponibilidad_profesor`
+--
+ALTER TABLE `disponibilidad_profesor`
+  ADD CONSTRAINT `disponibilidad_profesor_ibfk_1` FOREIGN KEY (`profesor_id`) REFERENCES `usuarios` (`id`) ON DELETE CASCADE;
+
+--
 -- Filtros para la tabla `mensajes`
 --
 ALTER TABLE `mensajes`
   ADD CONSTRAINT `mensajes_ibfk_1` FOREIGN KEY (`remitente_id`) REFERENCES `usuarios` (`id`) ON DELETE CASCADE,
   ADD CONSTRAINT `mensajes_ibfk_2` FOREIGN KEY (`destinatario_id`) REFERENCES `usuarios` (`id`) ON DELETE CASCADE;
+
+--
+-- Filtros para la tabla `metodos_pago_guardados`
+--
+ALTER TABLE `metodos_pago_guardados`
+  ADD CONSTRAINT `metodos_pago_guardados_ibfk_1` FOREIGN KEY (`usuario_id`) REFERENCES `usuarios` (`id`) ON DELETE CASCADE;
 
 --
 -- Filtros para la tabla `pagos`
@@ -332,6 +419,12 @@ ALTER TABLE `pagos`
 --
 ALTER TABLE `profesores_detalles`
   ADD CONSTRAINT `profesores_detalles_ibfk_1` FOREIGN KEY (`usuario_id`) REFERENCES `usuarios` (`id`) ON DELETE CASCADE;
+
+--
+-- Filtros para la tabla `profesor_idiomas`
+--
+ALTER TABLE `profesor_idiomas`
+  ADD CONSTRAINT `profesor_idiomas_ibfk_1` FOREIGN KEY (`profesor_id`) REFERENCES `usuarios` (`id`) ON DELETE CASCADE;
 
 --
 -- Filtros para la tabla `profesor_materias`

@@ -8,6 +8,10 @@ if (!isset($_SESSION['usuario_id']) || $_SESSION['rol'] != 'profesor') {
     header("Location: login.php");
     exit();
 }
+
+// Preparamos la inicial para el avatar del menú
+$nombre_usuario = isset($_SESSION['nombre']) ? $_SESSION['nombre'] : 'Profesor';
+$inicial = strtoupper(substr($nombre_usuario, 0, 1));
 ?>
 <!doctype html>
 <html lang="es">
@@ -31,7 +35,7 @@ if (!isset($_SESSION['usuario_id']) || $_SESSION['rol'] != 'profesor') {
       .calendario-grid {
         display: grid;
         grid-template-columns: repeat(7, 1fr);
-        gap: 2px; /* Gap más pequeño para que quepa en la columna lateral */
+        gap: 2px;
         margin-top: 10px;
       }
 
@@ -71,6 +75,19 @@ if (!isset($_SESSION['usuario_id']) || $_SESSION['rol'] != 'profesor') {
         border-radius: 50%;
         position: absolute;
         bottom: 3px;
+      }
+
+      /* Estilo para el avatar de iniciales */
+      .avatar-inicial {
+        width: 40px;
+        height: 40px;
+        background-color: #FFC947;
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+        border-radius: 50%;
       }
     </style>
   </head>
@@ -198,23 +215,28 @@ if (!isset($_SESSION['usuario_id']) || $_SESSION['rol'] != 'profesor') {
                 href="#"
                 role="button"
                 data-bs-toggle="dropdown"
+                aria-expanded="false"
               >
-                <img
-                  src="https://placehold.co/40x40"
-                  class="rounded-circle border"
-                  alt="Perfil"
-                />
-                <span><?php echo isset($_SESSION['nombre']) ? htmlspecialchars($_SESSION['nombre']) : 'Profesor'; ?></span>
+                <div class="avatar-inicial border"><?php echo $inicial; ?></div>
+                <span><?php echo htmlspecialchars($nombre_usuario); ?></span>
               </a>
 
               <ul class="dropdown-menu dropdown-menu-end border-0 shadow-lg">
                 <li>
-                  <a class="dropdown-item" href="ficha.php">Ver mi perfil</a>
+                  <a class="dropdown-item" href="ficha-profesor.php">
+                    <i class="bi bi-person-badge me-2"></i>Ver mi perfil público
+                  </a>
                 </li>
-                <li><a class="dropdown-item" href="configuracion-profesor.php">Configuración</a></li>
+                <li>
+                  <a class="dropdown-item" href="configuracion-profesor.php">
+                    <i class="bi bi-gear me-2"></i>Configuración
+                  </a>
+                </li>
                 <li><hr class="dropdown-divider" /></li>
                 <li>
-                  <a class="dropdown-item text-danger" href="logout.php">Cerrar sesión</a>
+                  <a class="dropdown-item text-danger" href="logout.php">
+                    <i class="bi bi-box-arrow-right me-2"></i>Cerrar sesión
+                  </a>
                 </li>
               </ul>
             </li>
@@ -461,34 +483,21 @@ if (!isset($_SESSION['usuario_id']) || $_SESSION['rol'] != 'profesor') {
         const mes = fechaActual.getMonth();
 
         const nombresMeses = [
-          "Enero",
-          "Febrero",
-          "Marzo",
-          "Abril",
-          "Mayo",
-          "Junio",
-          "Julio",
-          "Agosto",
-          "Septiembre",
-          "Octubre",
-          "Noviembre",
-          "Diciembre",
+          "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio",
+          "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre",
         ];
         titulo.textContent = `${nombresMeses[mes]} ${anio}`;
 
         const primerDiaSemana = new Date(anio, mes, 1).getDay();
         const totalDiasMes = new Date(anio, mes + 1, 0).getDate();
 
-        // Ajuste Lunes=0 ... Domingo=6
         let empezarEn = primerDiaSemana === 0 ? 6 : primerDiaSemana - 1;
 
-        // Bucle 1: Espacios
         for (let i = 0; i < empezarEn; i++) {
           const espacio = document.createElement("div");
           contenedor.appendChild(espacio);
         }
 
-        // Bucle 2: Días
         const hoy = new Date();
 
         for (let dia = 1; dia <= totalDiasMes; dia++) {
@@ -496,7 +505,6 @@ if (!isset($_SESSION['usuario_id']) || $_SESSION['rol'] != 'profesor') {
           nuevoDia.classList.add("dia-mes");
           nuevoDia.textContent = dia;
 
-          // Marcar hoy
           if (
             dia === hoy.getDate() &&
             mes === hoy.getMonth() &&
@@ -505,7 +513,6 @@ if (!isset($_SESSION['usuario_id']) || $_SESSION['rol'] != 'profesor') {
             nuevoDia.classList.add("hoy");
           }
 
-          // Marcar si hay clase (punto amarillo)
           if (diasConClase.includes(dia)) {
             const punto = document.createElement("div");
             punto.classList.add("punto-amarillo");
@@ -526,10 +533,8 @@ if (!isset($_SESSION['usuario_id']) || $_SESSION['rol'] != 'profesor') {
         cargarCalendario();
       }
 
-      // Iniciar
       document.addEventListener("DOMContentLoaded", cargarCalendario);
 
-      //creamos funcion marca una solicitud como aceptada y la elimina
       function aceptarClase(boton) {
         const solicitud = boton.closest(".solicitud");
         solicitud.innerHTML =
@@ -537,7 +542,6 @@ if (!isset($_SESSION['usuario_id']) || $_SESSION['rol'] != 'profesor') {
         setTimeout(() => solicitud.remove(), 1500);
       }
 
-      //creamos funcion que elimina una solicitud previa confirmación
       function rechazarClase(boton) {
         if (confirm("¿Seguro que quieres rechazar esta solicitud?")) {
           const solicitud = boton.closest(".solicitud");

@@ -236,7 +236,7 @@ if (!isset($_SESSION['usuario_id']) || $_SESSION['rol'] != 'alumno') {
 
               <div class="col-md-4 text-end mt-3 mt-md-0">
                 <a
-                  href="videollamada.html"
+                  href="videollamada.php"
                   class="btn btn-primary-custom w-100 py-3 fw-bold pulse-animation"
                 >
                   ENTRAR AHORA

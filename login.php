@@ -71,12 +71,16 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
               <div class="alert alert-danger small text-center"><?php echo $error; ?></div>
             <?php endif; ?>
 
-            <form action="login.php" method="POST">
+            <form id="loginForm" action="login.php" method="POST">
+              
               <div class="mb-3">
                 <label class="form-label"><b>CORREO ELECTRÓNICO</b></label>
                 <div class="input-group">
                   <span class="input-group-text bg-white"><i class="bi bi-envelope"></i></span>
-                  <input type="email" name="email" class="form-control" placeholder="nombre@ejemplo.com" required />
+                  <input type="text" id="salidaEmail" name="email" class="form-control" placeholder="nombre@ejemplo.com" />
+                </div>
+                <div id="errorEmail" class="text-danger small mt-1" style="display: none;">
+                  Por favor, ingresa un correo electrónico válido.
                 </div>
               </div>
 
@@ -84,7 +88,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 <label class="form-label"><b>CONTRASEÑA</b></label>
                 <div class="input-group">
                   <span class="input-group-text bg-white"><i class="bi bi-lock"></i></span>
-                  <input type="password" name="password" class="form-control" placeholder="********" required />
+                  <input type="password" id="salidaContrasena" name="password" class="form-control" placeholder="********" />
+                </div>
+                <div id="errorContrasena" class="text-danger small mt-1" style="display: none;">
+                  La contraseña no puede estar vacía.
                 </div>
               </div>
 
@@ -107,5 +114,55 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         </div>
       </div>
     </div>
+
+    <script>
+      /* Función para mostrar errores y cambiar bordes */
+      function mostrarError(salidaId, errorId, hayError) {
+        const input = document.getElementById(salidaId);
+        const errorMsg = document.getElementById(errorId);
+        
+        if (hayError) {
+          input.style.borderColor = "red"; 
+          errorMsg.style.display = "block";
+        } else {
+          input.style.borderColor = "green";
+          errorMsg.style.display = "none";
+        }
+      }
+
+      document.getElementById("loginForm").addEventListener("submit", function (evento) {
+        
+        evento.preventDefault(); // Detenemos el envío para validar
+        let esValido = true;
+
+        // CORREGIDO: Buscar por "salidaEmail" que es el nombre correcto del ID
+        const emailValor = document.getElementById("salidaEmail").value;
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        
+        if (!emailRegex.test(emailValor)) {
+          mostrarError("salidaEmail", "errorEmail", true);
+          esValido = false;
+        } else {
+          mostrarError("salidaEmail", "errorEmail", false);
+        }
+
+        // CORREGIDO: Buscar por "salidaContrasena" sin la 'ñ'
+        const passValor = document.getElementById("salidaContrasena").value;
+        if (passValor.trim() === "") {
+          mostrarError("salidaContrasena", "errorContrasena", true);
+          esValido = false;
+        } else {
+          mostrarError("salidaContrasena", "errorContrasena", false);
+        }
+
+        //Si todo es correcto, envía los datos a PHP
+        if (esValido) {
+          const boton = this.querySelector('button[type="submit"]');
+          boton.innerText = "VERIFICANDO...";
+          boton.disabled = true;
+          this.submit(); // Llama al envío real
+        }
+      });
+    </script>
   </body>
 </html>
