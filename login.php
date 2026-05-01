@@ -146,7 +146,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
           mostrarError("salidaEmail", "errorEmail", false);
         }
 
-        // CORREGIDO: Buscar por "salidaContrasena" sin la 'ñ'
+        
         const passValor = document.getElementById("salidaContrasena").value;
         if (passValor.trim() === "") {
           mostrarError("salidaContrasena", "errorContrasena", true);

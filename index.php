@@ -40,8 +40,13 @@ $esta_logueado = isset($_SESSION['usuario_id']) ? 'true' : 'false';
 
         <div class="d-flex gap-2 mt-3 mt-lg-0">
           <?php if(isset($_SESSION['usuario_id'])): ?>
+            <!-- Botón de Panel -->
             <a href="<?php echo ($_SESSION['rol'] == 'profesor') ? 'dashboard-profesor.php' : 'dashboard-alumno.php'; ?>" class="btn btn-primary-custom">
               Ir a mi Panel
+            </a>
+            <!-- BOTÓN DE CERRAR SESIÓN AÑADIDO -->
+            <a href="logout.php" class="btn btn-outline-danger d-flex align-items-center gap-2">
+              <i class="bi bi-box-arrow-right"></i> Salir
             </a>
           <?php else: ?>
             <a href="login.php" class="btn btn-outline-custom d-flex align-items-center gap-2">

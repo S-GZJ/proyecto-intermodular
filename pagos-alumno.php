@@ -1,3 +1,16 @@
+<?php
+session_start();
+
+// ESCUDO DE SEGURIDAD: Solo alumnos logueados
+if (!isset($_SESSION['usuario_id']) || $_SESSION['rol'] != 'alumno') {
+    header("Location: login.php");
+    exit();
+}
+
+// Preparamos los datos del alumno
+$nombre_usuario = htmlspecialchars($_SESSION['nombre']);
+$inicial = strtoupper(substr($nombre_usuario, 0, 1));
+?>
 <!doctype html>
 <html lang="es">
   <head>
@@ -19,9 +32,10 @@
   <body class="bg-light">
     <nav class="navbar navbar-light bg-white border-bottom sticky-top">
       <div class="container">
+        <!-- Enlace corregido a .php -->
         <a
           class="navbar-brand fw-bold d-flex align-items-center gap-2"
-          href="dashboard-alumno.html"
+          href="dashboard-alumno.php"
         >
           <i class="bi bi-arrow-left-circle text-muted"></i>
           <span>Volver al Panel</span>
@@ -34,25 +48,23 @@
             role="button"
             data-bs-toggle="dropdown"
           >
-            <img
-              src="https://placehold.co/40x40/FFC947/white?text=A"
-              class="rounded-circle border"
-              alt="Perfil"
-            />
-            <span>Alumno</span>
+            <!-- Inicial dinámica en el avatar -->
+            <div class="rounded-circle border d-flex align-items-center justify-content-center bg-warning text-white fw-bold" style="width:40px; height:40px;">
+                <?php echo $inicial; ?>
+            </div>
+            <span><?php echo $nombre_usuario; ?></span>
           </a>
           <ul class="dropdown-menu dropdown-menu-end border-0 shadow-lg">
             <li>
-              <a class="dropdown-item" href="ficha-alumno.html">Mi perfil</a>
+              <a class="dropdown-item" href="ficha-alumno.php">Mi perfil</a>
             </li>
             <li>
               <a class="dropdown-item active" href="#">Pagos y facturación</a>
             </li>
             <li><hr class="dropdown-divider" /></li>
             <li>
-              <a class="dropdown-item text-danger" href="index.html"
-                >Cerrar sesión</a
-              >
+              <!-- Enlace de salida corregido -->
+              <a class="dropdown-item text-danger" href="logout.php">Cerrar sesión</a>
             </li>
           </ul>
         </div>

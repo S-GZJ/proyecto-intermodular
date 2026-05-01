@@ -274,7 +274,7 @@ $inicial = strtoupper(substr($nombre_usuario, 0, 1));
                   Hoy, 17:00 - 18:00 · <strong>Juan Pérez</strong>
                 </p>
               </div>
-              <a href="videollamada.html" class="btn btn-primary-custom px-4">
+              <a href="videollamada.php" class="btn btn-primary-custom px-4">
                 <i class="bi bi-camera-video-fill"></i> Entrar al aula
               </a>
             </div>

@@ -199,17 +199,17 @@
     <!--barra de controles fija en la parte inferior -->
     <div class="controles fixed-bottom">
       <!--boton de micrófono: alterna estado visualmente-->
-      <button class="btn-circular" onclick="cambiarEstado(this)">
+      <button class="btn-circular" onclick="toggleMicro(this)">
         <i class="bi bi-mic-fill"></i>
       </button>
 
       <!--boton de cámara: alterna estado visualmente-->
-      <button class="btn-circular" onclick="cambiarEstado(this)">
+      <button class="btn-circular" onclick="toggleCamara(this)">
         <i class="bi bi-camera-video-fill"></i>
       </button>
 
       <!--botón de compartir pantalla sin funcionalidad implementada-->
-      <button class="btn-circular"><i class="bi bi-display"></i></button>
+      <button class="btn-circular" onclick="compartirPantalla()"><i class="bi bi-display"></i></button>
 
       <!--botón de colgar: rojo, con confirmación -->
       <button class="btn-circular btn-colgar" onclick="terminar()">
@@ -219,67 +219,120 @@
 
     <!--scripts JavaScript -->
     <script>
-      //creamos una funcion asíncrona que solicita acceso a la cámara del usuario y muestra el video en el elemento con id="webcam"
-      async function iniciarCamara() {
-        try {
-          //solicitamos permiso para usar la cámara (solo video, sin audio)
-          const stream = await navigator.mediaDevices.getUserMedia({
-            video: true,
-          });
+let stream = null;
+let videoTrack = null;
+let audioTrack = null;
 
-          //asigna el stream de video al elemento <video>
-          document.getElementById("webcam").srcObject = stream;
-        } catch (err) {
-          //si hay error (no hay cámara o no se dio permiso), lo registra en consola
-          console.log("No hay camara o no hay permiso");
-        }
-      }
+// INICIAR cámara y micro
+async function iniciarCamara() {
+  try {
+    stream = await navigator.mediaDevices.getUserMedia({
+      video: true,
+      audio: true,
+    });
 
-      //se inicia la cámara automáticamente cuando se carga la pagina
-      window.onload = iniciarCamara;
+    document.getElementById("webcam").srcObject = stream;
 
-      //creamos funcion que alterna el estado visual de los botones micro y camara
-      function cambiarEstado(btn) {
-        //si el botón está rojo, lo pone gris
-        if (btn.style.backgroundColor === "rgb(234, 67, 53)") {
-          btn.style.backgroundColor = "#3c4043";
-        }
-        //si el botón esta gris, lo pone rojo
-        else {
-          btn.style.backgroundColor = "#ea4335";
-        }
-      }
+    videoTrack = stream.getVideoTracks()[0];
+    audioTrack = stream.getAudioTracks()[0];
 
-      //creamos funcion que se ejecuta al hacer clic en el botón de colgar pidiendo confirmación antes de salir
-      function terminar() {
-        // mostramos confirmacion
-        if (confirm("¿Seguro que quieres salir?")) {
-          //si es true vuelve a la página anterior
-          window.history.back();
-        }
-      }
+  } catch (err) {
+    console.log("Error al acceder a cámara/micro:", err);
+  }
+}
 
-      //contador de tiempo de la clase variables que almacenan minutos y segundos
-      let segundos = 45;
-      let minutos = 12;
+window.onload = iniciarCamara;
 
-      //utilizamos setInterval donde ejecuta código cada 1000ms (1 segundo) e incrementa el contador y actualiza el texto en pantalla
-      setInterval(() => {
-        segundos++; //aumenta 1 segundo
+//////////////////////////////////////////////////////
+// 🎥 ACTIVAR / DESACTIVAR CÁMARA
+function toggleCamara(btn) {
+  if (!videoTrack) return;
 
-        //si llega a 60 seg, resetea a 0 y aumenta 1 minuto
-        if (segundos > 59) {
-          segundos = 0;
-          minutos++;
-        }
+  videoTrack.enabled = !videoTrack.enabled;
 
-        //actualiza el texto del contador con formato HH:MM:SS
-        document.getElementById("timer").innerText =
-          "00:" + //horas (siempre 00 en esta implementación)
-          (minutos < 10 ? "0" + minutos : minutos) + // Minutos con cero a la izquierda
-          ":" +
-          (segundos < 10 ? "0" + segundos : segundos); // Segundos con cero a la izquierda
-      }, 1000);
-    </script>
+  btn.style.backgroundColor = videoTrack.enabled
+    ? "#3c4043"
+    : "#ea4335";
+}
+
+//////////////////////////////////////////////////////
+// 🎤 ACTIVAR / DESACTIVAR MICRO
+function toggleMicro(btn) {
+  if (!audioTrack) return;
+
+  audioTrack.enabled = !audioTrack.enabled;
+const icon = btn.querySelector("i");
+if (audioTrack.enabled) { btn.style.backgroundColor = "#3c4043"; icon.className = "bi bi-mic-fill";
+} else { btn.style.backgroundColor = "#ea4335"; icon.className = "bi bi-mic-mute-fill"; } }
+  
+
+//////////////////////////////////////////////////////
+// 🖥️ COMPARTIR PANTALLA
+async function compartirPantalla() {
+  try {
+    const screenStream = await navigator.mediaDevices.getDisplayMedia({
+      video: true,
+    });
+
+    const videoPrincipal = document.querySelector(".video-profe-container img");
+
+    // Cambiamos la imagen por el stream
+    const video = document.createElement("video");
+    video.srcObject = screenStream;
+    video.autoplay = true;
+    video.style.width = "100%";
+    video.style.height = "100%";
+    video.style.objectFit = "cover";
+
+    videoPrincipal.replaceWith(video);
+
+  } catch (err) {
+    console.log("Error al compartir pantalla:", err);
+  }
+}
+
+//////////////////////////////////////////////////////
+// 💬 CHAT FUNCIONAL (LOCAL)
+document.querySelector(".btn.btn-primary").addEventListener("click", enviarMensaje);
+
+document.querySelector("input").addEventListener("keypress", function(e) {
+  if (e.key === "Enter") enviarMensaje();
+});
+
+function enviarMensaje() {
+  const input = document.querySelector("input");
+  const mensaje = input.value.trim();
+
+  if (mensaje === "") return;
+
+  const chat = document.querySelector(".flex-grow-1");
+
+  const nuevoMensaje = document.createElement("div");
+  nuevoMensaje.className = "mb-3 text-end";
+
+  nuevoMensaje.innerHTML = `
+    <small class="text-muted">Yo - ahora</small>
+    <div class="p-2 bg-primary text-white border rounded d-inline-block">
+      ${mensaje}
+    </div>
+  `;
+
+  chat.appendChild(nuevoMensaje);
+  chat.scrollTop = chat.scrollHeight;
+
+  input.value = "";
+}
+
+//////////////////////////////////////////////////////
+// 📞 COLGAR
+function terminar() {
+  if (confirm("¿Seguro que quieres salir?")) {
+    if (stream) {
+      stream.getTracks().forEach(track => track.stop());
+    }
+    window.history.back();
+  }
+}
+</script>
   </body>
 </html>

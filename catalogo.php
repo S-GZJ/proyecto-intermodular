@@ -51,7 +51,17 @@ $link_perfil_propio = ($rol_usuario == 'profesor') ? 'ficha-profesor.php' : 'fic
       </div>
     </nav>
 
-    <div class="container" style="margin-top: 120px;">
+    <div class="container" style="margin-top: 120px; margin-bottom: 50px;">
+      
+      <!-- BOTÓN VOLVER AL DASHBOARD -->
+      <div class="row mb-4">
+          <div class="col-12">
+              <a href="dashboard-alumno.php" class="btn btn-white shadow-sm border rounded-pill px-4 text-muted fw-bold">
+                  <i class="bi bi-arrow-left me-2"></i> Volver a mi Panel
+              </a>
+          </div>
+      </div>
+
       <div class="row g-4">
         <?php
         $sql_profes = "SELECT u.id, u.nombre, u.apellidos, pd.titulo_profesional, pd.tarifa_hora, pd.bio 

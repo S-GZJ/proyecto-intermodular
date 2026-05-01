@@ -14,7 +14,7 @@
     />
 
     <style>
-      /* Colores extraídos de tu index.html */
+      /* Colores extraídos de tu index.php */
       :root {
         --primary-custom: #3bb3bd;
         --primary-custom-hover: #2d8a92;
@@ -25,15 +25,12 @@
         padding-top: 100px; /* Espacio para la navbar fija */
       }
 
-      .navbar-custom {
-        background-color: white;
-        border-bottom: 1px solid #dee2e6;
-      }
-
+      /* Clase para el texto ISIMatch */
       .text-primary-custom {
         color: var(--primary-custom) !important;
       }
 
+      /* Clase para el botón azul */
       .btn-primary-custom {
         background-color: var(--primary-custom);
         border-color: var(--primary-custom);
@@ -49,10 +46,8 @@
         transform: translateY(-2px);
       }
 
-      .legal-card {
-        border: none;
-        border-radius: 1.5rem !important; /* Estilo rounded-4 de tu index */
-        box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+      .rounded-4 {
+        border-radius: 1.5rem !important;
       }
 
       h3 {
@@ -63,11 +58,16 @@
     </style>
   </head>
   <body class="bg-light">
-    <nav class="navbar navbar-expand-lg shadow-sm bg-white mb-5">
+    <!-- Navbar ajustada al estilo del inicio -->
+    <nav class="navbar navbar-expand-lg fixed-top py-3 bg-white shadow-sm">
       <div class="container">
-        <a class="navbar-brand fw-bold text-primary" href="index.html"
-          >ISIMatch</a
+        <a
+          class="navbar-brand fw-bold fs-3 d-flex align-items-center gap-2 text-primary-custom"
+          href="index.php"
         >
+          <i class="bi bi-mortarboard-fill"></i>
+          <span>ISIMatch</span>
+        </a>
       </div>
     </nav>
 
@@ -102,8 +102,12 @@
           recibir un reembolso completo según nuestras políticas de pago.
         </p>
       </section>
+
       <div class="mt-5">
-        <a href="index.php" class="btn btn-primary">Volver al inicio</a>
+        <!-- Botón cambiado a la clase personalizada azul -->
+        <a href="index.php" class="btn btn-primary-custom px-4 py-2 rounded-3">
+          Volver al inicio
+        </a>
       </div>
     </main>
   </body>
