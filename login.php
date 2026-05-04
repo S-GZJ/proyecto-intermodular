@@ -1,35 +1,40 @@
 <?php
-session_start(); // Iniciamos la sesión para guardar los datos del usuario
-include 'conexion.php'; // Conectamos a la BD
+// 1. GESTIÓN DE SESIÓN Y CONEXIÓN
+session_start(); // Inicia el sistema de sesiones para persistir al usuario entre páginas
+include 'conexion.php'; // Incluye la lógica para conectar con la base de datos MySQL
 
-$error = "";
+$error = ""; // Variable para almacenar mensajes de error y mostrarlos en el HTML
 
+// 2. PROCESAMIENTO DEL FORMULARIO (Lógica de Servidor)
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    // Limpieza de datos: real_escape_string evita inyecciones SQL básicas en el email
     $email = $conn->real_escape_string($_POST['email']);
-    $password = $_POST['password'];
+    $password = $_POST['password']; // La contraseña se queda tal cual para verificarla luego
 
-    // Buscamos al usuario en la base de datos
+    // Consulta: Buscamos al usuario por su email
     $sql = "SELECT id, nombre, password_hash, rol FROM usuarios WHERE email = '$email'";
     $resultado = $conn->query($sql);
 
     if ($resultado->num_rows > 0) {
-        $usuario = $resultado->fetch_assoc();
+        $usuario = $resultado->fetch_assoc(); // Extraemos los datos del usuario encontrado
         
-        // Comparamos la contraseña escrita con la encriptada en la BD
+        // 3. VERIFICACIÓN DE SEGURIDAD
+        // password_verify compara el texto plano con el hash encriptado de la BD
         if (password_verify($password, $usuario['password_hash'])) {
             
-            // ¡Login correcto! Guardamos sus datos en la sesión
+            // Login exitoso: Guardamos datos clave en la superglobal $_SESSION
             $_SESSION['usuario_id'] = $usuario['id'];
             $_SESSION['nombre'] = $usuario['nombre'];
             $_SESSION['rol'] = $usuario['rol'];
 
-            // Redirigimos según el rol
+            // 4. REDIRECCIÓN BASADA EN ROLES
+            // Si es profesor va a su panel, si no (alumno), al suyo
             if ($usuario['rol'] == 'profesor') {
                 header("Location: dashboard-profesor.php");
             } else {
                 header("Location: dashboard-alumno.php");
             }
-            exit();
+            exit(); // Detenemos la ejecución después de redirigir
         } else {
             $error = "Contraseña incorrecta.";
         }
@@ -44,16 +49,20 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Login - ISIMatch</title>
+    <!-- Bootstrap para diseño responsivo e iconos -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" />
     <link rel="stylesheet" href="style.css" />
     <style>
+      /* Estilos personalizados para la interfaz del login */
       .caja-login { border: 1px solid #ccc; padding: 30px; border-radius: 10px; background-color: white; }
-      .mi-boton { background-color: #0d6efd; color: white; border: none; border-radius: 5px; }
+      .mi-boton { background-color: #0d6efd; color: white; border: none; border-radius: 5px; transition: 0.3s; }
+      .mi-boton:hover { background-color: #0b5ed7; }
     </style>
   </head>
 
-  <body class="d-flex align-items-center min-vh-100 py-5">
+  <body class="d-flex align-items-center min-vh-100 py-5 bg-light">
+    <!-- Botón flotante para regresar a la página principal -->
     <a href="index.php" class="position-absolute top-0 start-0 m-4 text-decoration-none text-muted">
       <i class="bi bi-arrow-left"></i> Volver al inicio
     </a>
@@ -67,23 +76,27 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
               <p>Ingresa a tu cuenta para continuar aprendiendo</p>
             </div>
 
+            <!-- Bloque de error PHP: Solo aparece si hay un error de validación en el servidor -->
             <?php if($error != ""): ?>
               <div class="alert alert-danger small text-center"><?php echo $error; ?></div>
             <?php endif; ?>
 
             <form id="loginForm" action="login.php" method="POST">
               
+              <!-- Campo de Email -->
               <div class="mb-3">
                 <label class="form-label"><b>CORREO ELECTRÓNICO</b></label>
                 <div class="input-group">
                   <span class="input-group-text bg-white"><i class="bi bi-envelope"></i></span>
                   <input type="text" id="salidaEmail" name="email" class="form-control" placeholder="nombre@ejemplo.com" />
                 </div>
+                <!-- Mensaje de error oculto (se activa con JS) -->
                 <div id="errorEmail" class="text-danger small mt-1" style="display: none;">
                   Por favor, ingresa un correo electrónico válido.
                 </div>
               </div>
 
+              <!-- Campo de Contraseña -->
               <div class="mb-3">
                 <label class="form-label"><b>CONTRASEÑA</b></label>
                 <div class="input-group">
@@ -116,26 +129,29 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     </div>
 
     <script>
-      /* Función para mostrar errores y cambiar bordes */
+      /**
+       * VALIDACIÓN EN EL LADO DEL CLIENTE (JavaScript)
+       * Esta función cambia visualmente los inputs para guiar al usuario antes de enviar datos al servidor.
+       */
       function mostrarError(salidaId, errorId, hayError) {
         const input = document.getElementById(salidaId);
         const errorMsg = document.getElementById(errorId);
         
         if (hayError) {
-          input.style.borderColor = "red"; 
+          input.style.borderColor = "red"; // Feedback visual de error
           errorMsg.style.display = "block";
         } else {
-          input.style.borderColor = "green";
+          input.style.borderColor = "green"; // Feedback visual de éxito
           errorMsg.style.display = "none";
         }
       }
 
       document.getElementById("loginForm").addEventListener("submit", function (evento) {
+        evento.preventDefault(); // Detenemos el envío automático para validar primero
         
-        evento.preventDefault(); // Detenemos el envío para validar
         let esValido = true;
 
-        // CORREGIDO: Buscar por "salidaEmail" que es el nombre correcto del ID
+        // 1. Validación de Email con Expresión Regular (Regex)
         const emailValor = document.getElementById("salidaEmail").value;
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         
@@ -146,7 +162,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
           mostrarError("salidaEmail", "errorEmail", false);
         }
 
-        
+        // 2. Validación de Contraseña (que no esté vacía)
         const passValor = document.getElementById("salidaContrasena").value;
         if (passValor.trim() === "") {
           mostrarError("salidaContrasena", "errorContrasena", true);
@@ -155,12 +171,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
           mostrarError("salidaContrasena", "errorContrasena", false);
         }
 
-        //Si todo es correcto, envía los datos a PHP
+        // 3. Envío final
         if (esValido) {
           const boton = this.querySelector('button[type="submit"]');
-          boton.innerText = "VERIFICANDO...";
-          boton.disabled = true;
-          this.submit(); // Llama al envío real
+          boton.innerText = "VERIFICANDO..."; // UX: Feedback de carga
+          boton.disabled = true; // Evita múltiples clics
+          this.submit(); // Dispara el envío real de los datos a PHP
         }
       });
     </script>

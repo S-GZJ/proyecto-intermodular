@@ -1,25 +1,33 @@
-/* GENERAL */
+/* =========================================
+   HOJA DE ESTILOS GLOBAL - ISIMatch
+   ========================================= */
+
 :root {
-  /*paleta de colores*/
-  --primary-color: #3bb3bd;
-  --primary-hover: #2da1ab;
-  --secondary-color: #ffc947;
-  --text-dark: #2b2b35;
-  --text-muted: #6f757b;
-  --bg-light: #f5f7f9;
+  /* 1. VARIABLES CSS (Custom Properties)
+     Centralizamos los colores y estilos para que, si decidimos cambiar el azul, 
+     solo tengamos que editar una línea y se actualice en toda la web. */
+  --primary-color: #3bb3bd; /* Azul corporativo principal */
+  --primary-hover: #2da1ab; /* Tono para interacciones */
+  --secondary-color: #ffc947; /* Color de acento (amarillo) */
+  --text-dark: #2b2b35; /* Color base para lectura */
+  --text-muted: #6f757b; /* Color para textos secundarios */
+  --bg-light: #f5f7f9; /* Fondo suave para no cansar la vista */
   --white: #ffffff;
+
+  /* Definición de sombras y bordes consistentes */
   --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.08);
   --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.12);
   --radius: 12px;
 }
 
+/* 2. RESET Y TIPOGRAFÍA
+   Establecemos una fuente moderna (Segoe UI / Roboto) y el color base. */
 body {
   font-family: "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
   color: var(--text-dark);
   background-color: var(--bg-light);
 }
 
-/*títulos y textos */
 h1,
 h2,
 h3,
@@ -34,12 +42,13 @@ h6 {
   color: var(--primary-color);
 }
 
-/*botones*/
+/* 3. BOTONES PERSONALIZADOS
+   Mejoramos los botones de Bootstrap para que tengan un aspecto más moderno. */
 .btn {
   border-radius: 8px;
   font-weight: 600;
   padding: 10px 24px;
-  transition: all 0.3s ease;
+  transition: all 0.3s ease; /* Animación suave al pasar el ratón */
   border: none;
 }
 
@@ -51,7 +60,7 @@ h6 {
 .btn-primary-custom:hover {
   background-color: var(--primary-hover);
   color: white;
-  transform: translateY(-1px);
+  transform: translateY(-1px); /* Pequeño salto hacia arriba al hacer hover */
   box-shadow: 0 4px 12px rgba(59, 179, 189, 0.4);
 }
 
@@ -66,11 +75,12 @@ h6 {
   color: white;
 }
 
-/*tarjetas flotantes (cards) */
+/* 4. TARJETAS (CARDS)
+   Diseño de "capas" donde los elementos parecen flotar sobre el fondo. */
 .card,
 .card-custom {
   background-color: var(--white);
-  border: none !important; /*quitamos bordes negros */
+  border: none !important;
   border-radius: var(--radius) !important;
   box-shadow: var(--shadow-sm);
   transition:
@@ -78,18 +88,19 @@ h6 {
     box-shadow 0.3s ease;
 }
 
+/* Efecto de elevación cuando el usuario pasa el ratón por una tarjeta */
 .card-custom:hover {
   transform: translateY(-5px);
   box-shadow: var(--shadow-md);
 }
 
-/*inputs y formularios */
+/* 5. FORMULARIOS
+   Hacemos los campos de texto más limpios y con un foco claro. */
 .form-control,
 .form-select {
   border-radius: 8px !important;
   border: 1px solid #e0e0e0 !important;
   padding: 12px;
-  background-color: var(--white);
 }
 
 .form-control:focus {
@@ -97,27 +108,21 @@ h6 {
   box-shadow: 0 0 0 3px rgba(59, 179, 189, 0.2) !important;
 }
 
-/*navbar */
+/* 6. COMPONENTES ESPECÍFICOS */
+
+/* Navegación */
 .navbar {
   background-color: var(--white) !important;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
 }
 
-.nav-link {
-  font-weight: 500;
-  color: var(--text-dark) !important;
-}
-
-.nav-link:hover {
-  color: var(--primary-color) !important;
-}
-
-/*selección de Rol (registro) */
+/* Selector de Rol en el Registro */
 .role-card {
   cursor: pointer;
   border: 2px solid transparent !important;
 }
 
+/* Clase que se activa mediante JavaScript cuando seleccionas Alumno o Profesor */
 .role-card.selected {
   border-color: var(--primary-color) !important;
   background-color: rgba(59, 179, 189, 0.05) !important;
@@ -128,8 +133,8 @@ h6 {
   font-size: 3rem;
 }
 
-/* DASHBOARD-ALUMNO */
-/*animación suave para el botón de entrar a clase*/
+/* 7. ANIMACIONES AVANZADAS (Keyframes)
+   Efecto de "latido" para llamar la atención hacia botones críticos. */
 @keyframes pulse {
   0% {
     box-shadow: 0 0 0 0 rgba(59, 179, 189, 0.7);
@@ -142,7 +147,6 @@ h6 {
   }
 }
 
-/*clase que aplica la animación pulse infinitamente */
 .pulse-animation {
   animation: pulse 2s infinite;
 }
