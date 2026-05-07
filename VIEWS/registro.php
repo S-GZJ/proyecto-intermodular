@@ -1,60 +1,59 @@
 <?php
-/**
- * SISTEMA DE REGISTRO DE USUARIOS (registro.php)
- * Este script procesa el alta de nuevos usuarios y gestiona la sesión inicial.
- */
+/*--SISTEMA DE REGISTRO DE USUARIOS (registro.php)--
+Este script procesa el alta de nuevos usuarios y gestiona la sesión inicial
+*/
 session_start(); 
 
 $error = ""; 
 
-// --- MOTOR PHP: PROCESAMIENTO DEL FORMULARIO ---
+//--MOTOR PHP: PROCESAMIENTO DEL FORMULARIO--
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     
-    // Configuración de acceso a la base de datos
+    //Configuración de acceso a la base de datos
     $servidor = "localhost";
     $usuario_db = "root";
     $password_db = "";
     $base_datos = "isimatch";
 
-    // 1. Conexión al servidor MySQL
+    //--Conexión al servidor MySQL--
     $conn = new mysqli($servidor, $usuario_db, $password_db, $base_datos);
 
     if (!$conn->connect_error) {
         
-        // 2. Saneamiento de entradas para evitar Inyección SQL
+        //Saneamiento de entradas para evitar Inyección SQL
         $nombre_completo = $conn->real_escape_string($_POST['nombre']);
         $email = $conn->real_escape_string($_POST['email']);
         
-        // Encriptación de contraseña mediante el algoritmo BCRYPT
+        //Encriptación de contraseña mediante el algoritmo BCRYPT
         $password = password_hash($_POST['password'], PASSWORD_DEFAULT);
         
         $rol = $conn->real_escape_string($_POST['rol']);
         $anio_nacimiento = (int)$_POST['anio_nacimiento'];
         
-        // Lógica para separar el nombre de los apellidos (divide por el primer espacio encontrado)
+        //Lógica para separar el nombre de los apellidos (divide por el primer espacio encontrado)
         $partes_nombre = explode(" ", $nombre_completo, 2);
         $nombre = $partes_nombre[0];
         $apellidos = isset($partes_nombre[1]) ? $partes_nombre[1] : "";
 
-        // 3. Verificación de duplicados: Comprobamos si el email ya existe
+        //Verificación de duplicados: Comprobamos si el email ya existe
         $check_sql = "SELECT id FROM usuarios WHERE email='$email'";
         $resultado = $conn->query($check_sql);
         
         if ($resultado->num_rows > 0) {
             $error = "Ese correo electrónico ya está registrado. Intenta iniciar sesión.";
         } else {
-            // 4. Inserción del nuevo usuario en la tabla 'usuarios'
+            //Inserción del nuevo usuario en la tabla 'usuarios'
             $sql = "INSERT INTO usuarios (nombre, apellidos, email, password_hash, rol, anio_nacimiento) 
                     VALUES ('$nombre', '$apellidos', '$email', '$password', '$rol', $anio_nacimiento)";
             
             if ($conn->query($sql) === TRUE) {
                 
-                // Registro exitoso: Iniciamos la sesión automáticamente con el ID recién creado
+                //Registro exitoso: Iniciamos la sesión automáticamente con el ID recién creado
                 $_SESSION['usuario_id'] = $conn->insert_id;
                 $_SESSION['nombre'] = $nombre;
                 $_SESSION['rol'] = $rol;
 
-                // Redirección inteligente según el rol elegido
+                //Redirección inteligente según el rol elegido
                 if ($rol === "profesor") {
                     header("Location: dashboard-profesor.php");
                 } else {
@@ -65,7 +64,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 $error = "Hubo un error al crear la cuenta: " . $conn->error;
             }
         }
-        $conn->close(); // Cerramos conexión por seguridad
+        $conn->close(); //Cerramos conexión por seguridad
     } else {
         $error = "Error de conexión a la base de datos.";
     }

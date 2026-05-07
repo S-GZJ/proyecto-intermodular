@@ -1,11 +1,8 @@
-/* =========================================
-   HOJA DE ESTILOS GLOBAL - ISIMatch
-   ========================================= */
-
+/*HOJA DE ESTILOS GLOBAL*/
 :root {
-  /* 1. VARIABLES CSS (Custom Properties)
-     Centralizamos los colores y estilos para que, si decidimos cambiar el azul, 
-     solo tengamos que editar una línea y se actualice en toda la web. */
+  /*VARIABLES CSS (Custom Properties)
+      Centralizamos los colores y estilos para que, si decidimos cambiar el azul, 
+      solo tengamos que editar una línea y se actualice en toda la web*/
   --primary-color: #3bb3bd; /* Azul corporativo principal */
   --primary-hover: #2da1ab; /* Tono para interacciones */
   --secondary-color: #ffc947; /* Color de acento (amarillo) */
@@ -14,14 +11,13 @@
   --bg-light: #f5f7f9; /* Fondo suave para no cansar la vista */
   --white: #ffffff;
 
-  /* Definición de sombras y bordes consistentes */
+  /*Definición de sombras y bordes*/
   --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.08);
   --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.12);
   --radius: 12px;
 }
 
-/* 2. RESET Y TIPOGRAFÍA
-   Establecemos una fuente moderna (Segoe UI / Roboto) y el color base. */
+/*RESET Y TIPOGRAFÍA*/
 body {
   font-family: "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
   color: var(--text-dark);
@@ -42,13 +38,12 @@ h6 {
   color: var(--primary-color);
 }
 
-/* 3. BOTONES PERSONALIZADOS
-   Mejoramos los botones de Bootstrap para que tengan un aspecto más moderno. */
+/*BOTONES PERSONALIZADOS, mejoramos los botones de Bootstrap para que tengan un aspecto más moderno*/
 .btn {
   border-radius: 8px;
   font-weight: 600;
   padding: 10px 24px;
-  transition: all 0.3s ease; /* Animación suave al pasar el ratón */
+  transition: all 0.3s ease; /*Animación suave al pasar el ratón*/
   border: none;
 }
 
@@ -60,7 +55,7 @@ h6 {
 .btn-primary-custom:hover {
   background-color: var(--primary-hover);
   color: white;
-  transform: translateY(-1px); /* Pequeño salto hacia arriba al hacer hover */
+  transform: translateY(-1px); /*Pequeño salto hacia arriba al hacer hover */
   box-shadow: 0 4px 12px rgba(59, 179, 189, 0.4);
 }
 
@@ -75,8 +70,7 @@ h6 {
   color: white;
 }
 
-/* 4. TARJETAS (CARDS)
-   Diseño de "capas" donde los elementos parecen flotar sobre el fondo. */
+/*TARJETAS (CARDS), diseño de "capas" donde los elementos parecen flotar sobre el fondo. */
 .card,
 .card-custom {
   background-color: var(--white);
@@ -88,14 +82,13 @@ h6 {
     box-shadow 0.3s ease;
 }
 
-/* Efecto de elevación cuando el usuario pasa el ratón por una tarjeta */
+/*Efecto de elevación cuando el usuario pasa el ratón por una tarjeta */
 .card-custom:hover {
   transform: translateY(-5px);
   box-shadow: var(--shadow-md);
 }
 
-/* 5. FORMULARIOS
-   Hacemos los campos de texto más limpios y con un foco claro. */
+/*FORMULARIOS, hacemos los campos de texto más limpios y con un foco claro. */
 .form-control,
 .form-select {
   border-radius: 8px !important;
@@ -108,21 +101,20 @@ h6 {
   box-shadow: 0 0 0 3px rgba(59, 179, 189, 0.2) !important;
 }
 
-/* 6. COMPONENTES ESPECÍFICOS */
-
-/* Navegación */
+/*--COMPONENTES ESPECÍFICOS--*/
+/*Navegación*/
 .navbar {
   background-color: var(--white) !important;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
 }
 
-/* Selector de Rol en el Registro */
+/*Selector de Rol en el Registro*/
 .role-card {
   cursor: pointer;
   border: 2px solid transparent !important;
 }
 
-/* Clase que se activa mediante JavaScript cuando seleccionas Alumno o Profesor */
+/*Clase que se activa mediante JavaScript cuando seleccionas Alumno o Profesor*/
 .role-card.selected {
   border-color: var(--primary-color) !important;
   background-color: rgba(59, 179, 189, 0.05) !important;
@@ -133,8 +125,7 @@ h6 {
   font-size: 3rem;
 }
 
-/* 7. ANIMACIONES AVANZADAS (Keyframes)
-   Efecto de "latido" para llamar la atención hacia botones críticos. */
+/*ANIMACIONES AVANZADAS (Keyframes), efecto de "latido" para llamar la atención hacia botones "críticos"*/
 @keyframes pulse {
   0% {
     box-shadow: 0 0 0 0 rgba(59, 179, 189, 0.7);

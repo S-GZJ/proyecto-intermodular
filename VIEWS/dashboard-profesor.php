@@ -1,18 +1,17 @@
 <?php
-// Iniciamos o recuperamos la sesión para identificar al profesor logueado
+//Iniciamos o recuperamos la sesión para identificar al profesor logueado
 session_start(); 
 
-/**
- * 1. ESCUDO DE SEGURIDAD
- * Verificamos que el usuario tenga una sesión activa Y que su rol sea 'profesor'.
- * Si no cumple, se le redirige al login para proteger la información del panel.
- */
+/*--ESCUDO DE SEGURIDAD--
+Verificamos que el usuario tenga una sesión activa Y que su rol sea 'profesor'
+Si no cumple, se le redirige al login para proteger la información del panel
+*/
 if (!isset($_SESSION['usuario_id']) || $_SESSION['rol'] != 'profesor') {
     header("Location: login.php");
     exit();
 }
 
-// Preparamos el nombre real del profesor para la interfaz y generamos su inicial para el avatar
+//Preparamos el nombre real del profesor para la interfaz y generamos su inicial para el avatar
 $nombre_usuario = isset($_SESSION['nombre']) ? $_SESSION['nombre'] : 'Profesor';
 $inicial = strtoupper(substr($nombre_usuario, 0, 1));
 ?>
@@ -23,13 +22,13 @@ $inicial = strtoupper(substr($nombre_usuario, 0, 1));
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Panel Profesor - ISIMatch</title>
 
-    <!-- Librerías de estilos: Bootstrap para estructura y Bootstrap Icons para la iconografía -->
+    <!--Librerías de estilos bootstrap para estructura y bootstrap icons para la iconografía-->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet" />
     <link rel="stylesheet" href="style.css" />
 
     <style>
-      /* DISEÑO DEL CALENDARIO: Usamos CSS Grid para crear una cuadrícula perfecta de 7 columnas (días) */
+      /*DISEÑO DEL CALENDARIO: Usamos CSS Grid para crear una cuadrícula perfecta de 7 columnas (días)*/
       .calendario-grid {
         display: grid;
         grid-template-columns: repeat(7, 1fr);
@@ -37,7 +36,7 @@ $inicial = strtoupper(substr($nombre_usuario, 0, 1));
         margin-top: 10px;
       }
 
-      /* Estilo para los círculos de los días del mes */
+      /*Estilo para los círculos de los días del mes*/
       .dia-mes {
         aspect-ratio: 1 / 1;
         display: flex;
@@ -51,14 +50,14 @@ $inicial = strtoupper(substr($nombre_usuario, 0, 1));
 
       .dia-mes:hover { background-color: #e9ecef; }
 
-      /* Clase para resaltar el día actual */
+      /*Clase para resaltar el día actual*/
       .dia-mes.hoy {
         background-color: #3bb3bd;
         color: white;
         font-weight: bold;
       }
 
-      /* Punto de notificación para días que tienen clases programadas */
+      /*Punto de notificación para días que tienen clases programadas*/
       .punto-amarillo {
         width: 4px; height: 4px;
         background-color: #ffc107;
@@ -67,7 +66,7 @@ $inicial = strtoupper(substr($nombre_usuario, 0, 1));
         bottom: 3px;
       }
 
-      /* Avatar circular personalizado con la inicial del profesor */
+      /*Avatar circular personalizado con la inicial del profesor*/
       .avatar-inicial {
         width: 40px; height: 40px;
         background-color: #FFC947;
@@ -82,7 +81,7 @@ $inicial = strtoupper(substr($nombre_usuario, 0, 1));
   </head>
 
   <body class="bg-light">
-    <!-- BARRA DE NAVEGACIÓN SUPERIOR -->
+    <!--BARRA DE NAVEGACIÓN SUPERIOR-->
     <nav class="navbar navbar-expand-lg bg-white shadow-sm sticky-top">
       <div class="container">
         <a class="navbar-brand fw-bold d-flex align-items-center gap-2" href="index.php">
@@ -97,7 +96,7 @@ $inicial = strtoupper(substr($nombre_usuario, 0, 1));
               </a>
             </li>
 
-            <!-- MENÚ DE USUARIO DINÁMICO -->
+            <!--MENÚ DE USUARIO DINÁMICO-->
             <li class="nav-item dropdown">
               <a class="nav-link dropdown-toggle d-flex align-items-center gap-2" href="#" role="button" data-bs-toggle="dropdown">
                 <div class="avatar-inicial border"><?php echo $inicial; ?></div>
@@ -124,9 +123,9 @@ $inicial = strtoupper(substr($nombre_usuario, 0, 1));
       </header>
 
       <div class="row g-4">
-        <!-- COLUMNA PRINCIPAL (Izquierda) -->
+        <!--COLUMNA PRINCIPAL (Izquierda)-->
         <section class="col-lg-8">
-          <!-- ACCESO AL AULA VIRTUAL: Muestra la próxima clase inmediata -->
+          <!--ACCESO AL AULA VIRTUAL: Muestra la próxima clase inmediata-->
           <article class="card card-custom p-4 mb-4 border-start border-4 border-info shadow-sm border-0">
             <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
               <div>
@@ -138,7 +137,7 @@ $inicial = strtoupper(substr($nombre_usuario, 0, 1));
             </div>
           </article>
 
-          <!-- GESTIÓN DE ARCHIVOS: Recursos que el profesor comparte con sus alumnos -->
+          <!--GESTIÓN DE ARCHIVOS: Recursos que el profesor comparte con sus alumnos-->
           <article class="card card-custom p-4 shadow-sm border-0">
             <h5 class="fw-bold mb-4">Mis Recursos Compartidos</h5>
             <div class="list-group list-group-flush">
@@ -156,9 +155,9 @@ $inicial = strtoupper(substr($nombre_usuario, 0, 1));
           </article>
         </section>
 
-        <!-- COLUMNA LATERAL (Derecha) -->
+        <!--COLUMNA LATERAL (Derecha)-->
         <aside class="col-lg-4">
-          <!-- CALENDARIO DINÁMICO: Renderizado mediante JavaScript -->
+          <!--CALENDARIO DINÁMICO: Renderizado mediante JavaScript-->
           <div class="card card-custom p-4 mb-4 shadow-sm border-0">
             <div class="d-flex justify-content-between align-items-center mb-3">
               <h6 class="mb-0 fw-bold" id="tituloCalendario">Mes Año</h6>
@@ -171,7 +170,7 @@ $inicial = strtoupper(substr($nombre_usuario, 0, 1));
             <div id="contenedorDias" class="calendario-grid"></div>
           </div>
 
-          <!-- GESTIÓN DE SOLICITUDES: Clases nuevas que el profesor debe aceptar o rechazar -->
+          <!--GESTIÓN DE SOLICITUDES: Clases nuevas que el profesor debe aceptar o rechazar-->
           <div class="card card-custom p-4 shadow-sm border-0">
             <h5 class="mb-4 fw-bold">Solicitudes <span class="badge bg-warning text-dark rounded-pill">2</span></h5>
             <div class="solicitud p-3 bg-light border rounded">
@@ -192,44 +191,43 @@ $inicial = strtoupper(substr($nombre_usuario, 0, 1));
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
     <script>
-      /**
-       * LÓGICA DEL CALENDARIO (Frontend)
-       * Esta sección genera los días del mes actual dinámicamente.
-       */
+      /*--LÓGICA DEL CALENDARIO (Frontend)--
+      Esta sección genera los días del mes actual dinámicamente
+      */
       let fechaActual = new Date();
-      const diasConClase = [12, 14, 28]; // Días simulados con reservas
+      const diasConClase = [12, 14, 28]; //Días simulados con reservas
 
       function cargarCalendario() {
         const titulo = document.getElementById("tituloCalendario");
         const contenedor = document.getElementById("contenedorDias");
-        contenedor.innerHTML = ""; // Limpiamos el calendario
+        contenedor.innerHTML = ""; //Limpiamos el calendario
 
         const anio = fechaActual.getFullYear();
         const mes = fechaActual.getMonth();
         const nombresMeses = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"];
         titulo.textContent = `${nombresMeses[mes]} ${anio}`;
 
-        // Cálculo de días para posicionar el primer día del mes correctamente en la cuadrícula
+        //Cálculo de días para posicionar el primer día del mes correctamente en la cuadrícula
         const primerDiaSemana = new Date(anio, mes, 1).getDay();
         const totalDiasMes = new Date(anio, mes + 1, 0).getDate();
         let empezarEn = primerDiaSemana === 0 ? 6 : primerDiaSemana - 1;
 
-        // Rellenamos huecos vacíos del mes anterior
+        //Rellenamos huecos vacíos del mes anterior
         for (let i = 0; i < empezarEn; i++) { contenedor.appendChild(document.createElement("div")); }
 
-        // Creamos cada día del mes
+        //Creamos cada día del mes
         const hoy = new Date();
         for (let dia = 1; dia <= totalDiasMes; dia++) {
           const nuevoDia = document.createElement("div");
           nuevoDia.classList.add("dia-mes");
           nuevoDia.textContent = dia;
 
-          // Marcamos el día actual
+          //Marcamos el día actual
           if (dia === hoy.getDate() && mes === hoy.getMonth() && anio === hoy.getFullYear()) {
              nuevoDia.classList.add("hoy");
           }
 
-          // Añadimos punto si el día tiene clase
+          //Añadimos punto si el día tiene clase
           if (diasConClase.includes(dia)) {
             const punto = document.createElement("div");
             punto.classList.add("punto-amarillo");
@@ -239,11 +237,11 @@ $inicial = strtoupper(substr($nombre_usuario, 0, 1));
         }
       }
 
-      // Funciones de control de flujo -- v = valor 
+      //Funciones de control de flujo -- v = valor 
       function cambiarMes(v) { fechaActual.setMonth(fechaActual.getMonth() + v); cargarCalendario(); }
       function irAHoy() { fechaActual = new Date(); cargarCalendario(); }
       
-      // Simulación de interacción con solicitudes -- b = boton 
+      //Simulación de interacción con solicitudes -- b = boton 
       function aceptarClase(b) { 
         b.closest(".solicitud").innerHTML = "<div class='text-center text-success fw-bold'>¡Aceptada!</div>";
       }

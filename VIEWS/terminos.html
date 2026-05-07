@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Términos y Condiciones - ISIMatch</title>
-    <!-- Cargamos Bootstrap para asegurar un diseño limpio y profesional -->
+    <!--Cargamos Bootstrap para asegurar un diseño limpio y profesional-->
     <link
       href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
       rel="stylesheet"
@@ -14,44 +14,16 @@
       href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css"
     />
 
+    <link rel="stylesheet" href="../CSS/style.css" />
+
     <style>
-      /* 1. DISEÑO DE MARCA (Branding)
-         Replicamos las variables de color del index.php para que la 
-         experiencia de usuario sea fluida y consistente. */
-      :root {
-        --primary-custom: #3bb3bd; /* Azul turquesa corporativo */
-        --primary-custom-hover: #2d8a92;
-      }
-
+      /*Estilos estructurales únicos de esta página */
       body {
-        background-color: #f8f9fa; /* Fondo gris claro tipo 'página oficial' */
-        padding-top: 100px; /* Evita que la navbar fija tape el contenido */
-      }
-
-      /* Aplicación de colores mediante clases específicas */
-      .text-primary-custom {
-        color: var(--primary-custom) !important;
-      }
-
-      /* 2. ESTILIZACIÓN DE BOTONES
-         Añadimos transiciones para que el botón "reaccione" al usuario. */
-      .btn-primary-custom {
-        background-color: var(--primary-custom);
-        border-color: var(--primary-custom);
-        color: white;
-        font-weight: 500;
-        transition: all 0.3s;
-      }
-
-      .btn-primary-custom:hover {
-        background-color: var(--primary-custom-hover);
-        border-color: var(--primary-custom-hover);
-        color: white;
-        transform: translateY(-2px); /* Efecto de levitación */
+        padding-top: 100px;
       }
 
       .rounded-4 {
-        border-radius: 1.5rem !important; /* Bordes suaves y modernos */
+        border-radius: 1.5rem !important;
       }
 
       h3 {
@@ -62,26 +34,24 @@
     </style>
   </head>
   <body class="bg-light">
-    <!-- NAVBAR: Simplificada pero manteniendo la identidad de ISIMatch -->
+    <!--NAVBAR, simplificada pero manteniendo la identidad de ISIMatch-->
     <nav class="navbar navbar-expand-lg fixed-top py-3 bg-white shadow-sm">
       <div class="container">
         <a
           class="navbar-brand fw-bold fs-3 d-flex align-items-center gap-2 text-primary-custom"
-          href="index.php"
+          href="../index.php"
         >
           <i class="bi bi-mortarboard-fill"></i>
           <span>ISIMatch</span>
         </a>
       </div>
     </nav>
-
-    <!-- CUERPO DEL DOCUMENTO LEGAL -->
+    <!--CUERPO DEL DOCUMENTO LEGAL-->
     <main class="container bg-white p-5 shadow-sm rounded-4 mb-5">
       <h1 class="fw-bold mb-4">Términos y Condiciones de Uso</h1>
-      <p class="text-muted">Última actualización: 20 de mayo de 2025</p>
+      <p class="text-muted">Última actualización: 07 de mayo de 2026</p>
       <hr />
-      <!-- Línea divisoria de sección -->
-
+      <!--Línea divisoria de sección-->
       <section class="mt-4">
         <h3>1. Aceptación de los términos</h3>
         <p>
@@ -109,10 +79,12 @@
           recibir un reembolso completo según nuestras políticas de pago.
         </p>
       </section>
-
-      <!-- BOTÓN DE RETORNO: Permite al usuario volver a la navegación principal -->
+      <!-- BOTÓN DE RETORNO, permite al usuario volver a la navegación principal-->
       <div class="mt-5">
-        <a href="index.php" class="btn btn-primary-custom px-4 py-2 rounded-3">
+        <a
+          href="../index.php"
+          class="btn btn-primary-custom px-4 py-2 rounded-3"
+        >
           Volver al inicio
         </a>
       </div>

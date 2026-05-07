@@ -4,7 +4,8 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Política de Privacidad - ISIMatch</title>
-    <!-- Cargamos Bootstrap para mantener la consistencia visual de la plataforma -->
+
+    <!--Cargamos Bootstrap para mantener la estabilidad visual de la plataforma-->
     <link
       href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
       rel="stylesheet"
@@ -14,40 +15,17 @@
       href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css"
     />
 
+    <link rel="stylesheet" href="../CSS/style.css" />
+
     <style>
-      /* Definición de la Identidad Visual en CSS mediante Variables (Root) */
-      :root {
-        --primary-custom: #3bb3bd; /* Azul corporativo de ISIMatch */
-        --primary-custom-hover: #2d8a92; /* Tono más oscuro para el estado hover */
-      }
-
+      /*Estilos específicos de esta página que no están en el global */
       body {
-        background-color: #f8f9fa; /* Gris muy claro para resaltar el contenedor blanco */
-        padding-top: 100px; /* Margen para que el contenido no quede oculto bajo la navbar fija */
-      }
-
-      /* Clases personalizadas para aplicar el color de marca a textos y botones */
-      .text-primary-custom {
-        color: var(--primary-custom) !important;
-      }
-
-      .btn-primary-custom {
-        background-color: var(--primary-custom);
-        border-color: var(--primary-custom);
-        color: white;
-        font-weight: 500;
-        transition: all 0.3s; /* Animación suave para el hover */
-      }
-
-      .btn-primary-custom:hover {
-        background-color: var(--primary-custom-hover);
-        border-color: var(--primary-custom-hover);
-        color: white;
-        transform: translateY(-2px); /* Efecto de elevación al pasar el ratón */
+        background-color: #f8f9fa; /*Gris muy claro para resaltar el contenedor blanco*/
+        padding-top: 100px; /*Margen para que el contenido no quede oculto bajo la navbar fija*/
       }
 
       .rounded-4 {
-        border-radius: 1.5rem !important; /* Bordes muy redondeados para un estilo moderno */
+        border-radius: 1.5rem !important; /*Bordes muy redondeados para un estilo moderno*/
       }
 
       h3 {
@@ -58,26 +36,24 @@
     </style>
   </head>
   <body class="bg-light">
-    <!-- NAVEGACIÓN: Mantenemos el logo para identidad de marca pero simplificamos los enlaces -->
+    <!--NAVEGACIÓN, mantenemos el logo para identidad de marca pero simplificamos los enlaces-->
     <nav class="navbar navbar-expand-lg fixed-top py-3 bg-white shadow-sm">
       <div class="container">
         <a
           class="navbar-brand fw-bold fs-3 d-flex align-items-center gap-2 text-primary-custom"
-          href="index.php"
+          href="../index.php"
         >
           <i class="bi bi-mortarboard-fill"></i>
           <span>ISIMatch</span>
         </a>
       </div>
     </nav>
-
     <!-- CONTENIDO LEGAL -->
     <main class="container bg-white p-5 shadow-sm rounded-4 mb-5">
       <h1 class="fw-bold mb-4">Política de Privacidad</h1>
       <p class="text-muted">Tu privacidad es nuestra prioridad.</p>
       <hr />
       <!-- Línea divisoria decorativa -->
-
       <section class="mt-4">
         <h3>¿Qué datos recopilamos?</h3>
         <p>
@@ -98,9 +74,12 @@
         </p>
       </section>
 
-      <!-- ACCIÓN DE RETORNO -->
+      <!--ACCIÓN DE RETORNO-->
       <div class="mt-5">
-        <a href="index.php" class="btn btn-primary-custom px-4 py-2 rounded-3">
+        <a
+          href="../index.php"
+          class="btn btn-primary-custom px-4 py-2 rounded-3"
+        >
           Volver al inicio
         </a>
       </div>

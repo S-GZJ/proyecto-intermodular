@@ -1,20 +1,19 @@
 <?php
-/**
- * GESTIÓN DE PAGOS Y FACTURACIÓN (pagos-alumno.php)
- * Esta página permite al alumno gestionar sus tarjetas de crédito y ver sus gastos.
- */
+/*--GESTIÓN DE PAGOS Y FACTURACIÓN (pagos-alumno.php)--
+Esta página permite al alumno gestionar sus tarjetas de crédito y ver sus gastos.
+*/
 session_start();
 
-// ESCUDO DE SEGURIDAD: 
-// Solo permite el acceso si el usuario ha iniciado sesión y tiene el rol de 'alumno'.
+//ESCUDO DE SEGURIDAD: 
+//Solo permite el acceso si el usuario ha iniciado sesión y tiene el rol de 'alumno'
 if (!isset($_SESSION['usuario_id']) || $_SESSION['rol'] != 'alumno') {
     header("Location: login.php");
     exit();
 }
 
-// Preparamos los datos del alumno para la personalización de la interfaz
+//Preparamos los datos del alumno para la personalización de la interfaz
 $nombre_usuario = htmlspecialchars($_SESSION['nombre']);
-$inicial = strtoupper(substr($nombre_usuario, 0, 1)); // Inicial para el avatar circular
+$inicial = strtoupper(substr($nombre_usuario, 0, 1)); //Inicial para el avatar circular
 ?>
 <!doctype html>
 <html lang="es">
@@ -29,7 +28,7 @@ $inicial = strtoupper(substr($nombre_usuario, 0, 1)); // Inicial para el avatar 
   </head>
 
   <body class="bg-light">
-    <!-- NAVEGACIÓN SUPERIOR MINIMALISTA -->
+    <!--NAVEGACIÓN SUPERIOR MINIMALISTA-->
     <nav class="navbar navbar-light bg-white border-bottom sticky-top">
       <div class="container">
         <a class="navbar-brand fw-bold d-flex align-items-center gap-2" href="dashboard-alumno.php">
@@ -37,7 +36,7 @@ $inicial = strtoupper(substr($nombre_usuario, 0, 1)); // Inicial para el avatar 
           <span>Volver al Panel</span>
         </a>
 
-        <!-- Menú de usuario con Dropdown -->
+        <!--Menú de usuario con Dropdown-->
         <div class="dropdown">
           <a class="nav-link dropdown-toggle d-flex align-items-center gap-2" href="#" role="button" data-bs-toggle="dropdown">
             <div class="rounded-circle border d-flex align-items-center justify-content-center bg-warning text-white fw-bold" style="width:40px; height:40px;">
@@ -64,7 +63,7 @@ $inicial = strtoupper(substr($nombre_usuario, 0, 1)); // Inicial para el avatar 
       </div>
 
       <div class="row g-4">
-        <!-- COLUMNA IZQUIERDA: MÉTODOS DE PAGO Y SALDO -->
+        <!--COLUMNA IZQUIERDA: MÉTODOS DE PAGO Y SALDO-->
         <div class="col-lg-4">
           <div class="card card-custom p-4 mb-4">
             <h5 class="fw-bold mb-4"><i class="bi bi-wallet2"></i> Métodos de Pago</h5>
@@ -84,7 +83,7 @@ $inicial = strtoupper(substr($nombre_usuario, 0, 1)); // Inicial para el avatar 
               </div>
             </div>
 
-            <!-- Otras Tarjetas -->
+            <!--Otras Tarjetas-->
             <div class="p-3 border rounded mb-3">
               <div class="d-flex align-items-center gap-3">
                 <i class="bi bi-credit-card-2-front fs-1 text-muted"></i>
@@ -104,7 +103,7 @@ $inicial = strtoupper(substr($nombre_usuario, 0, 1)); // Inicial para el avatar 
             </button>
           </div>
 
-          <!-- SALDO DISPONIBLE: Fomenta la retención de usuarios mediante recargas prepago -->
+          <!--SALDO DISPONIBLE: Fomenta la retención de usuarios mediante recargas prepago-->
           <div class="card card-custom p-4 bg-primary-custom text-white shadow-sm">
             <h6 class="opacity-75">Crédito disponible para clases</h6>
             <h2 class="fw-bold mb-0">0,00 €</h2>
@@ -113,12 +112,12 @@ $inicial = strtoupper(substr($nombre_usuario, 0, 1)); // Inicial para el avatar 
           </div>
         </div>
 
-        <!-- COLUMNA DERECHA: HISTORIAL DE TRANSACCIONES -->
+        <!--COLUMNA DERECHA: HISTORIAL DE TRANSACCIONES-->
         <div class="col-lg-8">
           <div class="card card-custom p-4 shadow-sm border-0">
             <h5 class="fw-bold mb-4">Historial de Transacciones</h5>
 
-            <!-- Tabla responsiva para ver los pagos realizados -->
+            <!--Tabla responsiva para ver los pagos realizados-->
             <div class="table-responsive">
               <table class="table table-hover align-middle">
                 <thead class="table-light">
@@ -132,7 +131,7 @@ $inicial = strtoupper(substr($nombre_usuario, 0, 1)); // Inicial para el avatar 
                   </tr>
                 </thead>
                 <tbody>
-                  <!-- Ejemplo de fila de transacción completada -->
+                  <!--Ejemplo de fila de transacción completada-->
                   <tr>
                     <td>10 Dic 2023</td>
                     <td class="fw-bold">Clase de Programación Web</td>
@@ -157,7 +156,7 @@ $inicial = strtoupper(substr($nombre_usuario, 0, 1)); // Inicial para el avatar 
               </table>
             </div>
 
-            <!-- PAGINACIÓN: Para navegar si el historial es muy largo -->
+            <!--PAGINACIÓ, para navegar si el historial es muy largo-->
             <nav class="mt-3">
               <ul class="pagination justify-content-center">
                 <li class="page-item disabled"><a class="page-link" href="#">Anterior</a></li>
@@ -171,7 +170,7 @@ $inicial = strtoupper(substr($nombre_usuario, 0, 1)); // Inicial para el avatar 
       </div>
     </div>
 
-    <!-- Scripts de Bootstrap para el Dropdown de navegación -->
+    <!--Scripts de Bootstrap para el Dropdown de navegación-->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
   </body>
 </html>

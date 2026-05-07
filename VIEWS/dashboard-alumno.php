@@ -1,21 +1,20 @@
 <?php
-// Iniciamos o recuperamos la sesión del usuario
+//Iniciamos o recuperamos la sesión del usuario
 session_start(); 
 
-/**
- * 1. ESCUDO DE SEGURIDAD
- * Verificamos dos condiciones:
- * - Que exista una sesión activa (usuario_id).
- * - Que el rol sea estrictamente 'alumno'.
- * Esto evita que profesores o personas no logueadas entren a esta área privada.
- */
+/*--ESCUDO DE SEGURIDAD--
+Verificamos dos condiciones:
+-Que exista una sesión activa (usuario_id)
+-Que el rol sea estrictamente 'alumno'
+Esto evita que profesores o personas no logueadas entren a esta área privada
+*/
 if (!isset($_SESSION['usuario_id']) || $_SESSION['rol'] != 'alumno') {
-    // Redirección forzosa al login si no cumple los requisitos
+    //Redirección forzosa al login si no cumple los requisitos
     header("Location: login.php");
     exit();
 }
 
-// Preparamos el nombre para mostrarlo en el saludo personalizado
+//Preparamos el nombre para mostrarlo en el saludo personalizado
 $nombre_alumno = isset($_SESSION['nombre']) ? htmlspecialchars($_SESSION['nombre']) : 'Alumno';
 ?>
 <!doctype html>
@@ -25,14 +24,14 @@ $nombre_alumno = isset($_SESSION['nombre']) ? htmlspecialchars($_SESSION['nombre
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Mi Aprendizaje - ISIMatch</title>
 
-    <!-- Framework de diseño Bootstrap y set de iconos oficial -->
+    <!--Framework de diseño Bootstrap y set de iconos oficial-->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" />
     <link rel="stylesheet" href="style.css" />
   </head>
 
   <body class="bg-light">
-    <!-- BARRA DE NAVEGACIÓN (Navbar) -->
+    <!--BARRA DE NAVEGACIÓN (Navbar)-->
     <nav class="navbar navbar-expand-lg bg-white shadow-sm sticky-top">
       <div class="container">
         <a class="navbar-brand fw-bold fs-3 d-flex align-items-center gap-2" href="index.php">
@@ -40,7 +39,7 @@ $nombre_alumno = isset($_SESSION['nombre']) ? htmlspecialchars($_SESSION['nombre
           <span>ISIMatch</span>
         </a>
 
-        <!-- Botón para colapsar el menú en dispositivos móviles -->
+        <!--Botón para colapsar el menú en dispositivos móviles-->
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarDashboard">
           <span class="navbar-toggler-icon"></span>
         </button>
@@ -59,7 +58,7 @@ $nombre_alumno = isset($_SESSION['nombre']) ? htmlspecialchars($_SESSION['nombre
               </a>
             </li>
 
-            <!-- DROPDOWN DE MENSAJES: Simulación de notificaciones pendientes -->
+            <!--DROPDOWN DE MENSAJES: Simulación de notificaciones pendientes-->
             <li class="nav-item dropdown">
               <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
                 <i class="bi bi-chat-dots"></i> Mensajes
@@ -67,7 +66,7 @@ $nombre_alumno = isset($_SESSION['nombre']) ? htmlspecialchars($_SESSION['nombre
               </a>
               <ul class="dropdown-menu dropdown-menu-end border-0 shadow-lg" style="width: 320px">
                 <li><h6 class="dropdown-header fw-bold">Mensajes de Profesores</h6></li>
-                <!-- Ejemplo de mensaje interactivo -->
+                <!--Ejemplo de mensaje interactivo-->
                 <li>
                   <a class="dropdown-item d-flex align-items-center gap-3 py-2" href="#">
                     <img src="https://placehold.co/30x30" class="rounded-circle" alt="Isaac" />
@@ -85,7 +84,7 @@ $nombre_alumno = isset($_SESSION['nombre']) ? htmlspecialchars($_SESSION['nombre
               </ul>
             </li>
 
-            <!-- MENÚ DE USUARIO: Acceso al perfil personal y cierre de sesión -->
+            <!--MENÚ DE USUARIO: Acceso al perfil personal y cierre de sesión-->
             <li class="nav-item dropdown">
               <a class="nav-link dropdown-toggle d-flex align-items-center gap-2" href="#" role="button" data-bs-toggle="dropdown">
                 <img src="https://placehold.co/40x40/FFC947/white?text=A" class="rounded-circle border" alt="Perfil" />
@@ -104,7 +103,7 @@ $nombre_alumno = isset($_SESSION['nombre']) ? htmlspecialchars($_SESSION['nombre
     </nav>
 
     <div class="container my-5">
-      <!-- ENCABEZADO: Saludo dinámico y botón de acción principal -->
+      <!--ENCABEZADO: Saludo dinámico y botón de acción principal-->
       <div class="row align-items-center mb-5">
         <div class="col-md-8">
           <h2 class="fw-bold text-dark">¡Hola, <?php echo $nombre_alumno; ?>!</h2>
@@ -118,7 +117,7 @@ $nombre_alumno = isset($_SESSION['nombre']) ? htmlspecialchars($_SESSION['nombre
       </div>
 
       <div class="row g-4">
-        <!-- SECCIÓN PRINCIPAL: Clases próximas y Aula Virtual -->
+        <!--SECCIÓN PRINCIPAL: Clases próximas y Aula Virtual-->
         <div class="col-lg-8">
           <div class="card card-custom p-4 mb-5 border-start border-4 border-primary">
             <div class="row align-items-center">
@@ -132,7 +131,7 @@ $nombre_alumno = isset($_SESSION['nombre']) ? htmlspecialchars($_SESSION['nombre
                 <p class="mt-3 text-muted mb-0"><i class="bi bi-camera-video"></i> La sala se abrirá 5 minutos antes.</p>
               </div>
               <div class="col-md-4 text-end mt-3 mt-md-0">
-                <!-- Botón con animación 'pulse' para captar la atención del alumno -->
+                <!--Botón con animación 'pulse' para captar la atención del alumno-->
                 <a href="videollamada.php" class="btn btn-primary-custom w-100 py-3 fw-bold pulse-animation">ENTRAR AHORA</a>
               </div>
             </div>
@@ -140,7 +139,7 @@ $nombre_alumno = isset($_SESSION['nombre']) ? htmlspecialchars($_SESSION['nombre
 
           <h4 class="fw-bold mb-3">Mis Reservas</h4>
 
-          <!-- TARJETA DE RESERVA PENDIENTE: Muestra el estado de la solicitud -->
+          <!--TARJETA DE RESERVA PENDIENTE: Muestra el estado de la solicitud-->
           <div class="card card-custom p-3 mb-3">
             <div class="d-flex justify-content-between align-items-center">
               <div class="d-flex gap-3 align-items-center">
@@ -162,7 +161,7 @@ $nombre_alumno = isset($_SESSION['nombre']) ? htmlspecialchars($_SESSION['nombre
             </div>
           </div>
 
-          <!-- HISTORIAL: Clases pasadas con opción a valorar al profesor -->
+          <!--HISTORIAL: Clases pasadas con opción a valorar al profesor-->
           <div class="card card-custom p-3 mb-3 bg-light border-0 opacity-75">
             <div class="d-flex justify-content-between align-items-center">
               <div class="d-flex gap-3 align-items-center">
@@ -184,7 +183,7 @@ $nombre_alumno = isset($_SESSION['nombre']) ? htmlspecialchars($_SESSION['nombre
           </div>
         </div>
 
-        <!-- BARRA LATERAL (Aside): Ayuda rápida con posicionamiento 'sticky' -->
+        <!--BARRA LATERAL (Aside): Ayuda rápida con posicionamiento 'sticky'-->
         <div class="col-lg-4">
           <div class="card card-custom p-4 text-center sticky-top" style="top: 100px">
             <div class="mb-3">
@@ -198,13 +197,12 @@ $nombre_alumno = isset($_SESSION['nombre']) ? htmlspecialchars($_SESSION['nombre
       </div>
     </div>
 
-    <!-- SCRIPTS: Bootstrap JS y funciones personalizadas de la interfaz -->
+    <!--SCRIPTS: Bootstrap JS y funciones personalizadas de la interfaz-->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
     <script>
-      /**
-       * Función para cancelar una reserva.
-       * Utiliza animaciones de CSS y manipulación del DOM para mejorar la experiencia de usuario.
+      /*Función para cancelar una reserva:
+       -Utiliza animaciones de CSS y manipulación del DOM para mejorar la experiencia de usuario
        */
       function cancelarReserva(boton) {
         if (confirm("¿Seguro que quieres cancelar esta solicitud de clase?")) {
@@ -213,7 +211,7 @@ $nombre_alumno = isset($_SESSION['nombre']) ? htmlspecialchars($_SESSION['nombre
           tarjeta.style.opacity = "0";
           tarjeta.style.transform = "translateX(-20px)";
 
-          // Esperamos a que termine la animación antes de quitar el elemento
+          //Esperamos a que termine la animación antes de quitar el elemento
           setTimeout(() => {
             tarjeta.remove();
           }, 500);
@@ -222,7 +220,7 @@ $nombre_alumno = isset($_SESSION['nombre']) ? htmlspecialchars($_SESSION['nombre
     </script>
 
     <style>
-      /* Animación personalizada para el botón de 'Entrar a Clase' */
+      /*Animación personalizada para el botón de 'Entrar a Clase'*/
       @keyframes pulse {
         0% { box-shadow: 0 0 0 0 rgba(59, 179, 189, 0.7); }
         70% { box-shadow: 0 0 0 10px rgba(59, 179, 189, 0); }
