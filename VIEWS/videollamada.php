@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Aula Virtual - ISIMatch</title>
 
-    <!--Estilos Bootstrap y set de iconos para la interfaz de usuario -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" />
 
@@ -91,37 +90,30 @@
 
   <body>
     <div class="main-container">
-      <!--ÁREA DE VÍDEO PRINCIPAL-->
       <div class="video-profe-container shadow">
-        <!--Indicador de Grabación-->
         <div class="position-absolute top-0 start-0 p-3" style="z-index: 10">
           <span class="badge bg-dark px-3 py-2">
             <i class="bi bi-dot grabando"></i> GRABANDO | <span id="timer">00:12:45</span>
           </span>
         </div>
 
-        <!--Simulación del vídeo del profesor mediante una imagen de alta resolución-->
         <img id="pantalla-principal" src="https://images.unsplash.com/photo-1544717305-2782549b5136?w=1200" style="width: 100%; height: 100%; object-fit: cover" />
 
-        <!--Vídeo real de la cámara del alumno (Webcam)-->
         <div class="mi-webcam shadow-lg">
           <video id="webcam" autoplay muted style="width: 100%; height: 100%; object-fit: cover"></video>
           <span class="badge bg-dark position-absolute bottom-0 start-0 m-1">Tú</span>
         </div>
       </div>
 
-      <!--PANEL DE CHAT LATERAL-->
       <div class="chat-lateral shadow">
         <div class="p-3 border-bottom"><h6 class="mb-0 fw-bold"><i class="bi bi-chat-left-text"></i> Chat de la clase</h6></div>
         <div id="caja-chat" class="p-3 flex-grow-1 overflow-auto" style="background-color: #f8f9fa">
-          <!--Ejemplo de mensaje recibido-->
           <div class="mb-3">
             <small class="text-muted">Profe - 10:05</small>
             <div class="p-2 bg-white border rounded">¿Habéis entendido el concepto de flexbox?</div>
           </div>
         </div>
 
-        <!--Entrada de texto del chat-->
         <div class="p-3 border-top">
           <div class="input-group">
             <input type="text" id="input-mensaje" class="form-control" placeholder="Escribe un mensaje..." />
@@ -131,7 +123,6 @@
       </div>
     </div>
 
-    <!--CONTROLES DE LA LLAMADA-->
     <div class="controles fixed-bottom">
       <button class="btn-circular" onclick="toggleMicro(this)"><i class="bi bi-mic-fill"></i></button>
       <button class="btn-circular" onclick="toggleCamara(this)"><i class="bi bi-camera-video-fill"></i></button>

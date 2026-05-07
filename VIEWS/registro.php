@@ -9,14 +9,8 @@ $error = "";
 //--MOTOR PHP: PROCESAMIENTO DEL FORMULARIO--
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     
-    //Configuración de acceso a la base de datos
-    $servidor = "localhost";
-    $usuario_db = "root";
-    $password_db = "";
-    $base_datos = "isimatch";
-
-    //--Conexión al servidor MySQL--
-    $conn = new mysqli($servidor, $usuario_db, $password_db, $base_datos);
+    // RUTA CORREGIDA: Usamos el archivo de conexión centralizado en lugar de repetir los datos aquí
+    include '../PHP/conexion.php';
 
     if (!$conn->connect_error) {
         
@@ -54,6 +48,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 $_SESSION['rol'] = $rol;
 
                 //Redirección inteligente según el rol elegido
+                // RUTAS MANTENIDAS: Los dashboards están en la misma carpeta VIEWS
                 if ($rol === "profesor") {
                     header("Location: dashboard-profesor.php");
                 } else {
@@ -75,10 +70,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
   <head>
     <meta charset="UTF-8" />
     <title>Crea tu cuenta - ISIMatch</title>
-    <!-- Bootstrap para diseño y estilos personalizados -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" />
-    <link rel="stylesheet" href="style.css" />
+    
+    <link rel="stylesheet" href="../CSS/style.css" />
   </head>
 
   <body class="d-flex align-items-center min-vh-100 py-5 bg-light">
@@ -91,14 +86,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
               <p class="text-muted">Selecciona tu perfil para empezar</p>
             </div>
 
-            <!-- Bloque de errores PHP -->
             <?php if($error != ""): ?>
               <div class="alert alert-danger small text-center" role="alert">
                 <?php echo $error; ?>
               </div>
             <?php endif; ?>
 
-            <!-- SELECTOR DE ROL: Interfaz visual para elegir perfil -->
             <div class="row g-3 mb-4">
               <div class="col-6">
                 <div class="card role-card h-100 p-3 text-center" id="card-alumno" onclick="selectRole('alumno')">
@@ -117,7 +110,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
               </div>
             </div>
 
-            <!-- FORMULARIO DE REGISTRO -->
             <form id="registroForm" action="registro.php" method="POST">
               
               <div class="mb-3">
@@ -146,7 +138,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 </div>
               </div>
 
-              <!-- Campo oculto que almacena el rol seleccionado mediante JS -->
               <input type="hidden" id="rol" name="rol" value="" />
 
               <button type="submit" class="btn btn-primary-custom w-100 py-3 shadow-sm fw-bold">

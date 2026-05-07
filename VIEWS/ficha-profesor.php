@@ -7,11 +7,13 @@ Si el usuario no ha iniciado sesión, se le redirige al login.
 Solo usuarios registrados pueden ver los perfiles detallados.
 */
 if (!isset($_SESSION['usuario_id'])) {
+    // RUTA MANTENIDA: login.php está en la misma carpeta VIEWS
     header("Location: login.php");
     exit();
 }
 
-include 'conexion.php';
+// RUTA CORREGIDA: Salimos de VIEWS y entramos en PHP para la conexión
+include '../PHP/conexion.php';
 
 /*--LÓGICA DE IDENTIFICACIÓN DEL PERFIL--
 Esta página es inteligente:
@@ -40,6 +42,7 @@ $profe = $resultado->fetch_assoc();
 
 //Validación: Si el ID no existe en la base de datos, mostramos un error amable
 if (!$profe) {
+    // RUTA MANTENIDA: catalogo.php está en la misma carpeta VIEWS
     die("Perfil no encontrado. <a href='catalogo.php'>Volver al catálogo</a>");
 }
 
@@ -59,10 +62,10 @@ $es_mi_perfil = ($_SESSION['usuario_id'] == $perfil_id);
     <title>Perfil de <?php echo $nombre_profe; ?></title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" />
-    <link rel="stylesheet" href="style.css" />
+    
+    <link rel="stylesheet" href="../CSS/style.css" />
 </head>
 <body class="bg-light">
-    <!--BARRA DE NAVEGACIÓN: Retorno rápido al catálogo-->
     <nav class="navbar navbar-light bg-white border-bottom sticky-top">
       <div class="container">
         <a class="navbar-brand fw-bold d-flex align-items-center gap-2" href="catalogo.php">
@@ -73,25 +76,20 @@ $es_mi_perfil = ($_SESSION['usuario_id'] == $perfil_id);
 
     <div class="container my-5">
         <div class="row g-4">
-            <!--COLUMNA IZQUIERDA: Información biográfica-->
             <div class="col-lg-8">
                 <div class="card border-0 shadow-sm p-4 mb-4 text-center text-md-start">
                     <h1 class="fw-bold"><?php echo $nombre_profe; ?></h1>
-                    <!--Uso de operador null coalescing (??) para mostrar valores por defecto-->
                     <p class="text-primary-custom fw-bold fs-5">
                         <?php echo htmlspecialchars($profe['titulo_profesional'] ?? 'Profesor'); ?>
                     </p>
                     <p class="text-muted">
-                        <!--nl2br convierte los saltos de línea de la base de datos en etiquetas <br> de HTML-->
                         <?php echo nl2br(htmlspecialchars($profe['bio'] ?? 'Sin biografía disponible.')); ?>
                     </p>
                 </div>
             </div>
 
-            <!--COLUMNA DERECHA: Tarifa y Acciones-->
             <div class="col-lg-4">
                 <div class="card border-0 shadow-sm p-4 text-center">
-                    <!--Formateo de moneda para la tarifa-->
                     <h3 class="fw-bold"><?php echo number_format($profe['tarifa_hora'] ?? 15, 2); ?>€ / h</h3>
                     
                     <div class="d-grid gap-2 mt-4">

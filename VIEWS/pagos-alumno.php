@@ -24,11 +24,10 @@ $inicial = strtoupper(substr($nombre_usuario, 0, 1)); //Inicial para el avatar c
 
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" />
-    <link rel="stylesheet" href="style.css" />
+    <link rel="stylesheet" href="../CSS/style.css" />
   </head>
 
   <body class="bg-light">
-    <!--NAVEGACIÓN SUPERIOR MINIMALISTA-->
     <nav class="navbar navbar-light bg-white border-bottom sticky-top">
       <div class="container">
         <a class="navbar-brand fw-bold d-flex align-items-center gap-2" href="dashboard-alumno.php">
@@ -36,7 +35,6 @@ $inicial = strtoupper(substr($nombre_usuario, 0, 1)); //Inicial para el avatar c
           <span>Volver al Panel</span>
         </a>
 
-        <!--Menú de usuario con Dropdown-->
         <div class="dropdown">
           <a class="nav-link dropdown-toggle d-flex align-items-center gap-2" href="#" role="button" data-bs-toggle="dropdown">
             <div class="rounded-circle border d-flex align-items-center justify-content-center bg-warning text-white fw-bold" style="width:40px; height:40px;">
@@ -48,7 +46,7 @@ $inicial = strtoupper(substr($nombre_usuario, 0, 1)); //Inicial para el avatar c
             <li><a class="dropdown-item" href="ficha-alumno.php">Mi perfil</a></li>
             <li><a class="dropdown-item active" href="#">Pagos y facturación</a></li>
             <li><hr class="dropdown-divider" /></li>
-            <li><a class="dropdown-item text-danger" href="logout.php">Cerrar sesión</a></li>
+            <li><a class="dropdown-item text-danger" href="../PHP/logout.php">Cerrar sesión</a></li>
           </ul>
         </div>
       </div>
@@ -63,12 +61,10 @@ $inicial = strtoupper(substr($nombre_usuario, 0, 1)); //Inicial para el avatar c
       </div>
 
       <div class="row g-4">
-        <!--COLUMNA IZQUIERDA: MÉTODOS DE PAGO Y SALDO-->
         <div class="col-lg-4">
           <div class="card card-custom p-4 mb-4">
             <h5 class="fw-bold mb-4"><i class="bi bi-wallet2"></i> Métodos de Pago</h5>
 
-            <!-- Tarjeta Principal: Destacada con un borde azul -->
             <div class="p-3 border border-primary border-2 rounded bg-light mb-3 position-relative">
               <span class="badge bg-primary position-absolute top-0 end-0 m-2">Principal</span>
               <div class="d-flex align-items-center gap-3">
@@ -83,7 +79,6 @@ $inicial = strtoupper(substr($nombre_usuario, 0, 1)); //Inicial para el avatar c
               </div>
             </div>
 
-            <!--Otras Tarjetas-->
             <div class="p-3 border rounded mb-3">
               <div class="d-flex align-items-center gap-3">
                 <i class="bi bi-credit-card-2-front fs-1 text-muted"></i>
@@ -103,7 +98,6 @@ $inicial = strtoupper(substr($nombre_usuario, 0, 1)); //Inicial para el avatar c
             </button>
           </div>
 
-          <!--SALDO DISPONIBLE: Fomenta la retención de usuarios mediante recargas prepago-->
           <div class="card card-custom p-4 bg-primary-custom text-white shadow-sm">
             <h6 class="opacity-75">Crédito disponible para clases</h6>
             <h2 class="fw-bold mb-0">0,00 €</h2>
@@ -112,12 +106,10 @@ $inicial = strtoupper(substr($nombre_usuario, 0, 1)); //Inicial para el avatar c
           </div>
         </div>
 
-        <!--COLUMNA DERECHA: HISTORIAL DE TRANSACCIONES-->
         <div class="col-lg-8">
           <div class="card card-custom p-4 shadow-sm border-0">
             <h5 class="fw-bold mb-4">Historial de Transacciones</h5>
 
-            <!--Tabla responsiva para ver los pagos realizados-->
             <div class="table-responsive">
               <table class="table table-hover align-middle">
                 <thead class="table-light">
@@ -131,7 +123,6 @@ $inicial = strtoupper(substr($nombre_usuario, 0, 1)); //Inicial para el avatar c
                   </tr>
                 </thead>
                 <tbody>
-                  <!--Ejemplo de fila de transacción completada-->
                   <tr>
                     <td>10 Dic 2023</td>
                     <td class="fw-bold">Clase de Programación Web</td>
@@ -156,7 +147,6 @@ $inicial = strtoupper(substr($nombre_usuario, 0, 1)); //Inicial para el avatar c
               </table>
             </div>
 
-            <!--PAGINACIÓ, para navegar si el historial es muy largo-->
             <nav class="mt-3">
               <ul class="pagination justify-content-center">
                 <li class="page-item disabled"><a class="page-link" href="#">Anterior</a></li>
@@ -170,7 +160,6 @@ $inicial = strtoupper(substr($nombre_usuario, 0, 1)); //Inicial para el avatar c
       </div>
     </div>
 
-    <!--Scripts de Bootstrap para el Dropdown de navegación-->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
   </body>
 </html>

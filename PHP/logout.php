@@ -21,7 +21,8 @@ session_destroy();
 Una vez que el usuario ya no está identificado, lo enviamos de vuelta 
 a la página de inicio (index.php) para que vea la web como un visitante
 */
-header("Location: index.php"); 
+// RUTA CORREGIDA: Salimos de la carpeta PHP para llegar al index de la raíz
+header("Location: ../index.php"); 
 
 //exit() asegura que el script se detenga inmediatamente después de la redirección
 exit();

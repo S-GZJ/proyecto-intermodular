@@ -7,6 +7,7 @@ Verificamos que el usuario tenga una sesión activa Y que su rol sea 'profesor'
 Si no cumple, se le redirige al login para proteger la información del panel
 */
 if (!isset($_SESSION['usuario_id']) || $_SESSION['rol'] != 'profesor') {
+    // RUTA MANTENIDA: login.php está en la misma carpeta VIEWS
     header("Location: login.php");
     exit();
 }
@@ -22,10 +23,10 @@ $inicial = strtoupper(substr($nombre_usuario, 0, 1));
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Panel Profesor - ISIMatch</title>
 
-    <!--Librerías de estilos bootstrap para estructura y bootstrap icons para la iconografía-->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet" />
-    <link rel="stylesheet" href="style.css" />
+    
+    <link rel="stylesheet" href="../CSS/style.css" />
 
     <style>
       /*DISEÑO DEL CALENDARIO: Usamos CSS Grid para crear una cuadrícula perfecta de 7 columnas (días)*/
@@ -81,10 +82,9 @@ $inicial = strtoupper(substr($nombre_usuario, 0, 1));
   </head>
 
   <body class="bg-light">
-    <!--BARRA DE NAVEGACIÓN SUPERIOR-->
     <nav class="navbar navbar-expand-lg bg-white shadow-sm sticky-top">
       <div class="container">
-        <a class="navbar-brand fw-bold d-flex align-items-center gap-2" href="index.php">
+        <a class="navbar-brand fw-bold d-flex align-items-center gap-2" href="../index.php">
           <i class="bi bi-mortarboard-fill text-primary-custom"></i> ISIMatch
         </a>
 
@@ -96,7 +96,6 @@ $inicial = strtoupper(substr($nombre_usuario, 0, 1));
               </a>
             </li>
 
-            <!--MENÚ DE USUARIO DINÁMICO-->
             <li class="nav-item dropdown">
               <a class="nav-link dropdown-toggle d-flex align-items-center gap-2" href="#" role="button" data-bs-toggle="dropdown">
                 <div class="avatar-inicial border"><?php echo $inicial; ?></div>
@@ -106,7 +105,7 @@ $inicial = strtoupper(substr($nombre_usuario, 0, 1));
                 <li><a class="dropdown-item" href="ficha-profesor.php"><i class="bi bi-person-badge me-2"></i>Mi perfil público</a></li>
                 <li><a class="dropdown-item" href="configuracion-profesor.php"><i class="bi bi-gear me-2"></i>Configuración</a></li>
                 <li><hr class="dropdown-divider" /></li>
-                <li><a class="dropdown-item text-danger" href="logout.php"><i class="bi bi-box-arrow-right me-2"></i>Cerrar sesión</a></li>
+                <li><a class="dropdown-item text-danger" href="../PHP/logout.php"><i class="bi bi-box-arrow-right me-2"></i>Cerrar sesión</a></li>
               </ul>
             </li>
           </ul>
@@ -123,9 +122,7 @@ $inicial = strtoupper(substr($nombre_usuario, 0, 1));
       </header>
 
       <div class="row g-4">
-        <!--COLUMNA PRINCIPAL (Izquierda)-->
         <section class="col-lg-8">
-          <!--ACCESO AL AULA VIRTUAL: Muestra la próxima clase inmediata-->
           <article class="card card-custom p-4 mb-4 border-start border-4 border-info shadow-sm border-0">
             <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
               <div>
@@ -137,7 +134,6 @@ $inicial = strtoupper(substr($nombre_usuario, 0, 1));
             </div>
           </article>
 
-          <!--GESTIÓN DE ARCHIVOS: Recursos que el profesor comparte con sus alumnos-->
           <article class="card card-custom p-4 shadow-sm border-0">
             <h5 class="fw-bold mb-4">Mis Recursos Compartidos</h5>
             <div class="list-group list-group-flush">
@@ -155,9 +151,7 @@ $inicial = strtoupper(substr($nombre_usuario, 0, 1));
           </article>
         </section>
 
-        <!--COLUMNA LATERAL (Derecha)-->
         <aside class="col-lg-4">
-          <!--CALENDARIO DINÁMICO: Renderizado mediante JavaScript-->
           <div class="card card-custom p-4 mb-4 shadow-sm border-0">
             <div class="d-flex justify-content-between align-items-center mb-3">
               <h6 class="mb-0 fw-bold" id="tituloCalendario">Mes Año</h6>
@@ -170,7 +164,6 @@ $inicial = strtoupper(substr($nombre_usuario, 0, 1));
             <div id="contenedorDias" class="calendario-grid"></div>
           </div>
 
-          <!--GESTIÓN DE SOLICITUDES: Clases nuevas que el profesor debe aceptar o rechazar-->
           <div class="card card-custom p-4 shadow-sm border-0">
             <h5 class="mb-4 fw-bold">Solicitudes <span class="badge bg-warning text-dark rounded-pill">2</span></h5>
             <div class="solicitud p-3 bg-light border rounded">
@@ -191,7 +184,7 @@ $inicial = strtoupper(substr($nombre_usuario, 0, 1));
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
     <script>
-      /*--LÓGICA DEL CALENDARIO (Frontend)--
+      /*--LÓGICA DEL CALENDARIO--
       Esta sección genera los días del mes actual dinámicamente
       */
       let fechaActual = new Date();

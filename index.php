@@ -13,18 +13,14 @@ $esta_logueado = isset($_SESSION['usuario_id']) ? 'true' : 'false';
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>ISIMatch - Aprende con los mejores</title>
-    <!--Bootstrap para el diseño responsivo e iconos para la identidad visual-->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" />
-    <link rel="stylesheet" href="style.css" />
+    <link rel="stylesheet" href="CSS/style.css" />
   </head>
 
   <body>
-    <!--NAVEGACIÓN (Navbar)-->
-    <!--'fixed-top' mantiene la barra siempre arriba y 'shadow-sm' le da profundidad-->
     <nav class="navbar navbar-expand-lg fixed-top py-3 bg-white shadow-sm">
       <div class="container">
-        <!--Logo con icono de birrete representando educación-->
         <a class="navbar-brand fw-bold fs-3 d-flex align-items-center gap-2" href="index.php">
           <i class="bi bi-mortarboard-fill text-primary-custom"></i>
           <span>ISIMatch</span>
@@ -37,43 +33,33 @@ $esta_logueado = isset($_SESSION['usuario_id']) ? 'true' : 'false';
         <div class="collapse navbar-collapse justify-content-center" id="navbarNav">
           <ul class="navbar-nav gap-3">
             <li class="nav-item">
-              <!--La función 'verificarAccesoCatalogo' protege el acceso al catálogo mediante JS-->
               <a class="nav-link fw-bold text-primary-custom" href="#" onclick="verificarAccesoCatalogo(event)">Encontrar profesor</a>
             </li>
             <li class="nav-item">
-              <!--Pasamos el parámetro 'rol=profesor' por la URL para preseleccionar la opción en el registro-->
-              <a class="nav-link" href="registro.php?rol=profesor">Convertirse en tutor</a>
+              <a class="nav-link" href="VIEWS/registro.php?rol=profesor">Convertirse en tutor</a>
             </li>
             <li class="nav-item"><a class="nav-link" href="#faq">Ayuda</a></li>
           </ul>
         </div>
 
-        <!--ACCIONES DE USUARIO DINÁMICAS-->
         <div class="d-flex gap-2 mt-3 mt-lg-0">
           <?php if(isset($_SESSION['usuario_id'])): ?>
-            <!--SI EL USUARIO ESTÁ LOGUEADO: 
-                 -Detectamos su rol para mandarlo al Dashboard correcto
-                 -Mostramos el botón de cerrar sesión-->
-            <a href="<?php echo ($_SESSION['rol'] == 'profesor') ? 'dashboard-profesor.php' : 'dashboard-alumno.php'; ?>" class="btn btn-primary-custom">
+            <a href="VIEWS/<?php echo ($_SESSION['rol'] == 'profesor') ? 'dashboard-profesor.php' : 'dashboard-alumno.php'; ?>" class="btn btn-primary-custom">
               Ir a mi Panel
             </a>
-            <a href="logout.php" class="btn btn-outline-danger d-flex align-items-center gap-2">
+            <a href="PHP/logout.php" class="btn btn-outline-danger d-flex align-items-center gap-2">
               <i class="bi bi-box-arrow-right"></i> Salir
             </a>
           <?php else: ?>
-            <!--SI EL USUARIO ES UN VISITANTE:
-                 -Mostramos opciones de acceso y creación de cuenta-->
-            <a href="login.php" class="btn btn-outline-custom d-flex align-items-center gap-2">
+            <a href="VIEWS/login.php" class="btn btn-outline-custom d-flex align-items-center gap-2">
               <i class="bi bi-box-arrow-in-right"></i> Entrar
             </a>
-            <a href="registro.php" class="btn btn-primary-custom">Registrarse</a>
+            <a href="VIEWS/registro.php" class="btn btn-primary-custom">Registrarse</a>
           <?php endif; ?>
         </div>
       </div>
     </nav>
 
-    <!--SECCIÓN HERO (Hero Section)-->
-    <!--Es el mensaje principal. Usamos un margen superior para no quedar debajo de la navbar fija-->
     <section class="container" style="margin-top: 120px; margin-bottom: 80px">
       <div class="row align-items-center">
         <div class="col-md-6">
@@ -85,7 +71,6 @@ $esta_logueado = isset($_SESSION['usuario_id']) ? 'true' : 'false';
             Conecta con profesores expertos verificados. Reserva clases online y mejora tus habilidades con nuestra plataforma segura e integrada.
           </p>
 
-          <!--BUSCADOR VISUAL (Simulado)-->
           <div class="bg-white p-2 rounded-4 shadow-sm d-flex gap-2 border">
             <div class="input-group">
               <span class="input-group-text bg-white border-0"><i class="bi bi-search text-muted"></i></span>
@@ -101,14 +86,12 @@ $esta_logueado = isset($_SESSION['usuario_id']) ? 'true' : 'false';
       </div>
     </section>
 
-    <!--SECCIÓN DE CARACTERÍSTICAS-->
     <section class="container mb-5 py-5">
       <div class="text-center mb-5">
         <h2 class="fw-bold">¿Por qué elegir ISIMatch?</h2>
         <p class="text-muted">Todo lo que necesitas para aprender en un solo lugar</p>
       </div>
       <div class="row g-4">
-        <!--Tarjetas que explican el valor añadido del proyecto-->
         <div class="col-md-4">
           <div class="card card-custom h-100 p-4 text-center">
             <div class="mb-3"><i class="bi bi-person-check-fill text-primary-custom display-4"></i></div>
@@ -133,7 +116,6 @@ $esta_logueado = isset($_SESSION['usuario_id']) ? 'true' : 'false';
       </div>
     </section>
 
-    <!--SECCIÓN DE PREGUNTAS FRECUENTES-->
     <section id="faq" class="bg-light py-5">
       <div class="container">
         <div class="row justify-content-center">
@@ -142,7 +124,6 @@ $esta_logueado = isset($_SESSION['usuario_id']) ? 'true' : 'false';
               <span class="text-primary-custom fw-bold">AYUDA</span>
               <h2 class="fw-bold">Preguntas frecuentes</h2>
             </div>
-            <!-- Acordeon de Bootstrap para organizar las respuestas de forma compacta-->
             <div class="accordion" id="accordionAyuda">
               <div class="accordion-item border-0 mb-3 shadow-sm rounded overflow-hidden">
                 <h2 class="accordion-header">
@@ -162,8 +143,6 @@ $esta_logueado = isset($_SESSION['usuario_id']) ? 'true' : 'false';
       </div>
     </section>
 
-    <!--PIE DE PÁGINA-->
-    <!--Aplicamos el color corporativo mediante estilos en línea para sobreescribir Bootstrap-->
     <footer class="bg-white border-top py-4 mt-auto" style="background-color: #3bb3bd !important;">
       <div class="container text-center">
         <div class="mb-2">
@@ -192,11 +171,11 @@ $esta_logueado = isset($_SESSION['usuario_id']) ? 'true' : 'false';
         
         if (estaLogueado) {
             //Si tiene sesión, lo dejamos pasar al catálogo
-            window.location.href = "catalogo.php";
+            window.location.href = "VIEWS/catalogo.php";
         } else {
             // Si no tiene sesión, avisamos y redirigimos al registro
             alert("🔒 Acceso restringido\n\nDebes iniciar sesión o crear una cuenta para ver el catálogo de profesores.");
-            window.location.href = "registro.php";
+            window.location.href = "VIEWS/registro.php";
         }
       }
     </script>
