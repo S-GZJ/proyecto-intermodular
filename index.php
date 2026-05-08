@@ -1,24 +1,22 @@
 <?php
-/*--INICIO DE SESIÓN Y LÓGICA DE CONTROL--
-*/
+/*-- INICIO DE SESIÓN Y LÓGICA DE CONTROL --*/
 session_start();
 
-//Creamos una variable para JavaScript. Si existe 'usuario_id', enviamos la cadena 'true', si no 'false'
-//Esto permite que nuestras funciones de validación en el cliente sepan si el usuario entró
+// Variable para el control de acceso en el Frontend
 $esta_logueado = isset($_SESSION['usuario_id']) ? 'true' : 'false';
 ?>
 <!doctype html>
 <html lang="es">
-  <head>
+<head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>ISIMatch - Aprende con los mejores</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" />
     <link rel="stylesheet" href="CSS/style.css" />
-  </head>
+</head>
+<body class="d-flex flex-column min-vh-100">
 
-  <body>
     <nav class="navbar navbar-expand-lg fixed-top py-3 bg-white shadow-sm">
       <div class="container">
         <a class="navbar-brand fw-bold fs-3 d-flex align-items-center gap-2" href="index.php">
@@ -42,25 +40,23 @@ $esta_logueado = isset($_SESSION['usuario_id']) ? 'true' : 'false';
           </ul>
         </div>
 
-        <div class="d-flex gap-2 mt-3 mt-lg-0">
+        <div class="d-flex gap-2">
           <?php if(isset($_SESSION['usuario_id'])): ?>
-            <a href="VIEWS/<?php echo ($_SESSION['rol'] == 'profesor') ? 'dashboard-profesor.php' : 'dashboard-alumno.php'; ?>" class="btn btn-primary-custom">
-              Ir a mi Panel
+            <a href="VIEWS/<?php echo ($_SESSION['rol'] == 'profesor') ? 'dashboard-profesor.php' : 'dashboard-alumno.php'; ?>" class="btn btn-primary-custom rounded-pill px-4">
+              Mi Panel
             </a>
-            <a href="PHP/logout.php" class="btn btn-outline-danger d-flex align-items-center gap-2">
-              <i class="bi bi-box-arrow-right"></i> Salir
+            <a href="PHP/logout.php" class="btn btn-outline-danger rounded-pill px-3">
+              <i class="bi bi-box-arrow-right"></i>
             </a>
           <?php else: ?>
-            <a href="VIEWS/login.php" class="btn btn-outline-custom d-flex align-items-center gap-2">
-              <i class="bi bi-box-arrow-in-right"></i> Entrar
-            </a>
-            <a href="VIEWS/registro.php" class="btn btn-primary-custom">Registrarse</a>
+            <a href="VIEWS/login.php" class="btn btn-outline-custom rounded-pill px-4">Entrar</a>
+            <a href="VIEWS/registro.php" class="btn btn-primary-custom rounded-pill px-4">Registrarse</a>
           <?php endif; ?>
         </div>
       </div>
     </nav>
 
-    <section class="container" style="margin-top: 120px; margin-bottom: 80px">
+    <header class="container" style="margin-top: 140px; margin-bottom: 80px">
       <div class="row align-items-center">
         <div class="col-md-6">
           <span class="badge bg-warning text-dark mb-3 px-3 py-2 rounded-pill">🚀 Aprende sin límites</span>
@@ -71,87 +67,30 @@ $esta_logueado = isset($_SESSION['usuario_id']) ? 'true' : 'false';
             Conecta con profesores expertos verificados. Reserva clases online y mejora tus habilidades con nuestra plataforma segura e integrada.
           </p>
 
-          <div class="bg-white p-2 rounded-4 shadow-sm d-flex gap-2 border">
+          <form action="VIEWS/catalogo.php" method="GET" class="bg-white p-2 rounded-pill shadow-lg d-flex gap-2 border">
             <div class="input-group">
-              <span class="input-group-text bg-white border-0"><i class="bi bi-search text-muted"></i></span>
-              <input type="text" class="form-control border-0 shadow-none" placeholder="¿Qué quieres aprender? (Ej. Matemáticas)"/>
+              <span class="input-group-text bg-white border-0 ps-3"><i class="bi bi-search text-muted"></i></span>
+              <input type="text" name="q" class="form-control border-0 shadow-none" placeholder="¿Qué quieres aprender?"/>
             </div>
-            <a href="#" onclick="verificarAccesoCatalogo(event)" class="btn btn-primary-custom px-5 rounded-3 d-flex align-items-center">BUSCAR</a>
-          </div>
+            <button type="submit" onclick="verificarAccesoCatalogo(event)" class="btn btn-primary-custom px-5 rounded-pill fw-bold">BUSCAR</button>
+          </form>
         </div>
 
         <div class="col-md-6 text-center mt-5 mt-md-0">
-          <img src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" class="img-fluid rounded-4 shadow-md" alt="Estudiantes" />
+          <img src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" class="img-fluid rounded-4 shadow-lg" alt="Estudiantes" />
         </div>
       </div>
-    </section>
+    </header>
 
-    <section class="container mb-5 py-5">
-      <div class="text-center mb-5">
-        <h2 class="fw-bold">¿Por qué elegir ISIMatch?</h2>
-        <p class="text-muted">Todo lo que necesitas para aprender en un solo lugar</p>
-      </div>
-      <div class="row g-4">
-        <div class="col-md-4">
-          <div class="card card-custom h-100 p-4 text-center">
-            <div class="mb-3"><i class="bi bi-person-check-fill text-primary-custom display-4"></i></div>
-            <h4>Profesores verificados</h4>
-            <p class="text-muted">Revisamos cada perfil manualmente para garantizar la calidad de la enseñanza.</p>
-          </div>
-        </div>
-        <div class="col-md-4">
-          <div class="card card-custom h-100 p-4 text-center">
-            <div class="mb-3"><i class="bi bi-calendar-check-fill text-primary-custom display-4"></i></div>
-            <h4>Reserva flexible</h4>
-            <p class="text-muted">Consulta la disponibilidad en tiempo real y reserva tu hueco en segundos.</p>
-          </div>
-        </div>
-        <div class="col-md-4">
-          <div class="card card-custom h-100 p-4 text-center">
-            <div class="mb-3"><i class="bi bi-camera-video-fill text-primary-custom display-4"></i></div>
-            <h4>Aula virtual integrada</h4>
-            <p class="text-muted">Clases por videollamada sin salir de ISIMatch. Todo en un solo lugar.</p>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <section id="faq" class="bg-light py-5">
-      <div class="container">
-        <div class="row justify-content-center">
-          <div class="col-lg-8">
-            <div class="text-center mb-5">
-              <span class="text-primary-custom fw-bold">AYUDA</span>
-              <h2 class="fw-bold">Preguntas frecuentes</h2>
-            </div>
-            <div class="accordion" id="accordionAyuda">
-              <div class="accordion-item border-0 mb-3 shadow-sm rounded overflow-hidden">
-                <h2 class="accordion-header">
-                  <button class="accordion-button collapsed fw-bold" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne">
-                    ¿Cómo reservo una clase?
-                  </button>
-                </h2>
-                <div id="collapseOne" class="accordion-collapse collapse">
-                  <div class="accordion-body text-muted bg-white">
-                    Es muy fácil. Ve a "Encontrar profesor", elige el perfil que más te guste, selecciona una hora en su calendario y procede al pago seguro.
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <footer class="bg-white border-top py-4 mt-auto" style="background-color: #3bb3bd !important;">
+    <footer class="py-4 mt-auto" style="background-color: #3bb3bd !important;">
       <div class="container text-center">
         <div class="mb-2">
-          <span class="fw-bold text-white">ISIMatch</span> &copy; 2025
+          <span class="fw-bold text-white">ISIMatch</span> <span class="text-white">&copy; 2026</span>
         </div>
         <small class="text-white"> 
-          <a href="terminos.html" class="text-decoration-none text-white me-2">Términos y condiciones</a>
+          <a href="./VIEWS/terminos.html" class="text-decoration-none text-white me-2">Términos y condiciones</a>
           |
-          <a href="privacidad.html" class="text-decoration-none text-white ms-2">Política de privacidad</a>
+          <a href="./VIEWS/privacidad.html" class="text-decoration-none text-white ms-2">Política de privacidad</a>
         </small>
       </div>
     </footer>
@@ -159,25 +98,20 @@ $esta_logueado = isset($_SESSION['usuario_id']) ? 'true' : 'false';
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     
     <script>
-      /*--VALIDACIÓN DE ACCESO AL CATÁLOGO--
-      Esta función impide que usuarios anónimos naveguen por el catálogo de profesores,
-      fomentando el registro y protegiendo la privacidad de los datos
-      */
       function verificarAccesoCatalogo(event) {
-        event.preventDefault(); 
-        
-        //Recogemos el valor booleano inyectado desde PHP al principio del archivo
         const estaLogueado = <?php echo $esta_logueado; ?>;
         
         if (estaLogueado) {
-            //Si tiene sesión, lo dejamos pasar al catálogo
-            window.location.href = "VIEWS/catalogo.php";
+            // Si el evento viene de un formulario, dejamos que el 'submit' siga su curso
+            if (event.target.tagName !== 'BUTTON') {
+                event.preventDefault();
+                window.location.href = "VIEWS/catalogo.php";
+            }
         } else {
-            // Si no tiene sesión, avisamos y redirigimos al registro
+            event.preventDefault();
             alert("🔒 Acceso restringido\n\nDebes iniciar sesión o crear una cuenta para ver el catálogo de profesores.");
             window.location.href = "VIEWS/registro.php";
         }
       }
     </script>
-  </body>
-</html>
+</body>
