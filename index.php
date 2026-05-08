@@ -59,6 +59,7 @@ $esta_logueado = isset($_SESSION['usuario_id']) ? 'true' : 'false';
     <header class="container" style="margin-top: 140px; margin-bottom: 80px">
       <div class="row align-items-center">
         <div class="col-md-6">
+          <br></br>
           <span class="badge bg-warning text-dark mb-3 px-3 py-2 rounded-pill">🚀 Aprende sin límites</span>
           <h1 class="display-4 fw-bold mb-4">
             Encuentra tu profesor <br /><span class="text-primary-custom">ideal hoy mismo.</span>
