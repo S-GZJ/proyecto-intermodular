@@ -1,12 +1,12 @@
 <?php
-/*ARCHIVO DE PROCESAMIENTO DE MENSAJES (enviar.php)
+/*ARCHIVO DE PROCESAMIENTO DE MENSAJES (enviar.php) --
 Este script recibe los datos del formulario de chat y los guarda en la base de datos
 */
 
 //IMPORTACIÓN DE LA CONEXIÓN reutilizamos el objeto $conn para interactuar con MySQL
 include "conexion.php";
 
-// 2. RECEPCIÓN DE DATOS, 
+//--RECEPCIÓN DE DATOS--
 // extraemos el texto enviado por el usuario a través del método POST 
 // (normalmente desde un campo llamado 'mensaje').
 $contenido = $_POST['mensaje'];

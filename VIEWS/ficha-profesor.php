@@ -1,23 +1,33 @@
 <?php
-// --- LÓGICA DE SERVIDOR (PHP) ---
+/**
+ * ISIMatch - Perfil Público del Profesor
+ * Este archivo muestra la biografía, valoraciones y el formulario de reserva de un tutor
+ */
+
+//--LÓGICA DE SERVIDOR (PHP)--
 session_start();
 
-/*-- ESCUDO DE SEGURIDAD --*/
+/*--ESCUDO DE SEGURIDAD--*/
+// Solo usuarios registrados (alumnos o profesores) pueden ver perfiles detallados
 if (!isset($_SESSION['usuario_id'])) {
     header("Location: login.php");
     exit();
 }
 
+/*Conectar con la base de datos*/
 include '../PHP/conexion.php';
 
-/*-- IDENTIFICACIÓN DEL PERFIL --*/
+/*--IDENTIFICACIÓN DEL PERFIL--*/
+//Si recibimos un ID por la URL (?id=5), mostramos ese perfil
+//Si no, mostramos el perfil del propio usuario logueado (vista previa)
 if (isset($_GET['id']) && !empty($_GET['id'])) {
     $perfil_id = $conn->real_escape_string($_GET['id']);
 } else {
     $perfil_id = $_SESSION['usuario_id'];
 }
 
-/*-- CONSULTA SQL DINÁMICA AMPLIADA --*/
+/*--CONSULTA SQL DINÁMICA--*/
+//Obtenemos los datos personales y profesionales del profesor solicitado
 $sql = "SELECT u.id, u.nombre, u.apellidos, pd.titulo_profesional, pd.bio, pd.tarifa_hora, pd.valoracion_media, pd.total_resenas 
         FROM usuarios u 
         LEFT JOIN profesores_detalles pd ON u.id = pd.usuario_id 
@@ -26,16 +36,18 @@ $sql = "SELECT u.id, u.nombre, u.apellidos, pd.titulo_profesional, pd.bio, pd.ta
 $resultado = $conn->query($sql);
 $profe = $resultado->fetch_assoc();
 
+//Si el ID no pertenece a un profesor o no existe, detenemos la ejecución.
 if (!$profe) {
     die("El perfil solicitado no existe o no está disponible. <a href='catalogo.php'>Volver al catálogo</a>");
 }
 
-// Variables para el diseño
+//Variables auxiliares para el diseño
 $nombre_completo = htmlspecialchars($profe['nombre'] . " " . $profe['apellidos']);
 $letra_avatar = strtoupper(substr($profe['nombre'], 0, 1));
 $es_mi_propio_perfil = ($_SESSION['usuario_id'] == $perfil_id);
 
-/*-- CONSULTA DE RESEÑAS REALES (Si las hay) --*/
+/*--CONSULTA DE RESEÑAS REALES--*/
+//Traemos las últimas 3 opiniones de alumnos 
 $sql_resenas = "SELECT r.*, u.nombre FROM resenas r JOIN usuarios u ON r.alumno_id = u.id WHERE r.profesor_id = '$perfil_id' ORDER BY r.fecha_resena DESC LIMIT 3";
 $res_resenas = $conn->query($sql_resenas);
 ?>
@@ -46,7 +58,6 @@ $res_resenas = $conn->query($sql_resenas);
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title><?php echo $nombre_completo; ?> - Tutor en ISIMatch</title>
-    
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" />
     <link rel="stylesheet" href="../CSS/style.css" />
@@ -156,6 +167,7 @@ $res_resenas = $conn->query($sql_resenas);
                             <i class="bi bi-shield-lock-fill text-success"></i>
                             <span>Reserva protegida por ISIMatch</span>
                         </div>
+                    
                     <?php else: ?>
                         <div class="text-center">
                             <div class="alert alert-secondary border-0 small mb-4 py-3">

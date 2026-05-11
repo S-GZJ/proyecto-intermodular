@@ -1,57 +1,65 @@
 <?php
-/*--SISTEMA DE REGISTRO DE USUARIOS (registro.php)--*/
+/**
+ * ISIMatch - Sistema de Registro de Usuarios
+ * Gestiona la creación de cuentas, validación de correos duplicados y bienvenida automática
+ */
+
 session_start(); 
 
-$error = ""; 
+$error = ""; //Variable para capturar y mostrar errores al usuario
 
+//--LÓGICA DE PROCESAMIENTO (Cuando el usuario envía el formulario) --
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     
     include '../PHP/conexion.php';
 
     if (!$conn->connect_error) {
         
-        // Saneamiento de entradas
+        //Saneamiento de entradas, evitamos inyecciones SQL limpiando los textos
         $nombre_completo = $conn->real_escape_string($_POST['nombre']);
         $email = $conn->real_escape_string($_POST['email']);
+        
+        //SEGURIDAD: Encriptamos la contraseña antes de guardarla, nunca se guarda en texto plano
         $password = password_hash($_POST['password'], PASSWORD_DEFAULT);
+        
         $rol = $conn->real_escape_string($_POST['rol']);
         $anio_nacimiento = (int)$_POST['anio_nacimiento'];
         
-        // Separación de nombre y apellidos
+        //Lógica para separar el nombre de los apellidos si el usuario escribe todo junto
         $partes_nombre = explode(" ", $nombre_completo, 2);
         $nombre = $partes_nombre[0];
         $apellidos = isset($partes_nombre[1]) ? $partes_nombre[1] : "";
 
-        // Verificación de duplicados
+        //VERIFICACIÓN, comprobamos si el correo ya existe para no duplicar cuentas
         $check_sql = "SELECT id FROM usuarios WHERE email='$email'";
         $resultado = $conn->query($check_sql);
         
         if ($resultado->num_rows > 0) {
             $error = "Este correo ya está en uso. ¿Ya tienes cuenta?";
         } else {
-            // 1. INSERCIÓN DEL USUARIO
+            //--INSERCIÓN DEL NUEVO USUARIO--
             $sql = "INSERT INTO usuarios (nombre, apellidos, email, password_hash, rol, anio_nacimiento) 
                     VALUES ('$nombre', '$apellidos', '$email', '$password', '$rol', $anio_nacimiento)";
             
             if ($conn->query($sql) === TRUE) {
-                $nuevo_id = $conn->insert_id; // Guardamos el ID recién creado
+                $nuevo_id = $conn->insert_id; //Obtenemos el ID generado automáticamente por MySQL
 
-                // --- INICIO LÓGICA MENSAJE DE BIENVENIDA ---
-                // El remitente 1 debe existir en tu BDD como 'Sistema' o 'Admin'
-                $id_admin = 1; 
-                $texto_bienvenida = "¡Hola " . $nombre . "! Bienvenido a ISIMatch. Estamos encantados de tenerte aquí. Explora la plataforma y cuéntanos si necesitas ayuda.";
+                //--INICIO LÓGICA MENSAJE DE BIENVENIDA--
+                //Creamos un mensaje automático en la tabla de mensajes para el nuevo usuario
+                $id_admin = 1; //ID del administrador o sistema
+                $texto_bienvenida = "¡Hola " . $nombre . "! Bienvenido a ISIMatch. Estamos encantados de tenerte aquí.";
                 
                 $sql_mensaje = "INSERT INTO mensajes (remitente_id, destinatario_id, contenido, leido) 
                                 VALUES ('$id_admin', '$nuevo_id', '$texto_bienvenida', 0)";
                 $conn->query($sql_mensaje);
-                // --- FIN LÓGICA MENSAJE ---
+                //--FIN LÓGICA MENSAJE--
 
-                // Login automático
+                //LOGIN AUTOMÁTICO, una vez registrado, le iniciamos sesión sin pedirle el login
                 $_SESSION['usuario_id'] = $nuevo_id;
                 $_SESSION['nombre'] = $nombre;
                 $_SESSION['rol'] = $rol;
 
-                // Redirección inteligente
+                //Redirección según el perfil elegido
                 if ($rol === "profesor") {
                     header("Location: dashboard-profesor.php");
                 } else {
@@ -79,9 +87,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     <link rel="stylesheet" href="../CSS/style.css" />
 
     <style>
+      /*Estilos para las tarjetas de selección de rol (Alumno/Profesor)*/
       .role-card { cursor: pointer; transition: transform 0.2s, border-color 0.3s; border: 2px solid #eee; }
-      .role-card:hover { transform: translateY(-5px); border-color: var(--primary-color); }
-      .role-card.selected { border-color: var(--primary-color); background-color: rgba(59, 179, 189, 0.05); }
+      .role-card:hover { transform: translateY(-5px); border-color: #3bb3bd; }
+      .role-card.selected { border-color: #3bb3bd; background-color: rgba(59, 179, 189, 0.05); }
+      /*Barra de fortaleza de contraseña*/
       .password-strength { height: 5px; transition: all 0.3s; border-radius: 5px; margin-top: 5px; width: 0%; }
       .bg-soft { background-color: #f8f9fa; }
     </style>
@@ -110,13 +120,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
               <label class="form-label small fw-bold text-muted text-uppercase mb-3">Selecciona tu perfil</label>
               <div class="row g-3 mb-4">
                 <div class="col-6">
-                  <div class="card role-card h-100 p-3 text-center rounded-4" id="card-alumno" onclick="selectRole('alumno')">
+                  <div class="card role-card h-100 p-3 text-center rounded-4" id="card-alumno" onclick="seleccionarRol('alumno')">
                     <i class="bi bi-person-badge fs-2 mb-2 text-primary-custom"></i>
                     <h6 class="fw-bold mb-0">Alumno</h6>
                   </div>
                 </div>
                 <div class="col-6">
-                  <div class="card role-card h-100 p-3 text-center rounded-4" id="card-profesor" onclick="selectRole('profesor')">
+                  <div class="card role-card h-100 p-3 text-center rounded-4" id="card-profesor" onclick="seleccionarRol('profesor')">
                     <i class="bi bi-person-workspace fs-2 mb-2 text-primary-custom"></i>
                     <h6 class="fw-bold mb-0">Profesor</h6>
                   </div>
@@ -140,12 +150,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 </div>
                 <div class="col-6">
                   <label class="form-label small fw-bold text-muted text-uppercase">Contraseña</label>
-                  <input type="password" name="password" class="form-control rounded-pill border-0 bg-soft px-4 py-2" placeholder="••••••••" onkeyup="checkStrength(this.value)" required />
-                  <div class="password-strength" id="strengthBar"></div>
+                  <input type="password" name="password" class="form-control rounded-pill border-0 bg-soft px-4 py-2" placeholder="••••••••" onkeyup="verificarFortaleza(this.value)" required />
+                  <div class="password-strength" id="barraFortaleza"></div>
                 </div>
               </div>
 
-              <input type="hidden" id="rol" name="rol" value="" />
+              <input type="hidden" id="rol_oculto" name="rol" value="" />
 
               <div class="mb-4 form-check">
                 <input type="checkbox" class="form-check-input" id="termsCheck" required>
@@ -166,30 +176,33 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     </div>
 
     <script>
-      function selectRole(role) {
+      /*Función para seleccionar el rol visualmente y asignar el valor al input oculto*/
+      function seleccionarRol(rol) {
         document.querySelectorAll(".role-card").forEach((el) => el.classList.remove("selected"));
-        document.getElementById("card-" + role).classList.add("selected");
-        document.getElementById("rol").value = role;
+        document.getElementById("card-" + rol).classList.add("selected");
+        document.getElementById("rol_oculto").value = rol;
       }
 
-      function checkStrength(password) {
-        const bar = document.getElementById("strengthBar");
-        let strength = 0;
-        if (password.length > 5) strength += 33;
-        if (/[A-Z]/.test(password)) strength += 33;
-        if (/[0-9]/.test(password)) strength += 34;
+      /*Cálculo visual de la fortaleza de la contraseña (Longitud, mayúsculas y números)*/
+      function verificarFortaleza(contrasena) {
+        const barra = document.getElementById("barraFortaleza");
+        let fuerza = 0;
+        if (contrasena.length > 5) fuerza += 33;
+        if (/[A-Z]/.test(contrasena)) fuerza += 33;
+        if (/[0-9]/.test(contrasena)) fuerza += 34;
 
-        bar.style.width = strength + "%";
-        if (strength < 34) bar.style.backgroundColor = "#ff4d4d";
-        else if (strength < 67) bar.style.backgroundColor = "#ffd11a";
-        else bar.style.backgroundColor = "#2eb82e";
+        barra.style.width = fuerza + "%";
+        if (fuerza < 34) barra.style.backgroundColor = "#ff4d4d"; //Débil
+        else if (fuerza < 67) barra.style.backgroundColor = "#ffd11a"; //Media
+        else barra.style.backgroundColor = "#2eb82e"; //Fuerte
       }
 
+      /*Validación antes de enviar, comprueba que se haya elegido un rol*/
       document.getElementById("registroForm").addEventListener("submit", function (evento) {
-        if (!document.getElementById("rol").value) {
-          evento.preventDefault();
-          alert("Por favor, selecciona si eres Alumno o Profesor antes de continuar.");
-          return;
+        if (!document.getElementById("rol_oculto").value) {
+            evento.preventDefault();
+            alert("Por favor, selecciona si eres Alumno o Profesor antes de continuar.");
+            return;
         }
         const boton = this.querySelector('button[type="submit"]');
         boton.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span> PROCESANDO...';

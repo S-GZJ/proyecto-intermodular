@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1
--- Tiempo de generación: 08-05-2026 a las 16:58:05
+-- Tiempo de generación: 11-05-2026 a las 19:45:30
 -- Versión del servidor: 10.4.32-MariaDB
 -- Versión de PHP: 8.2.12
 
@@ -52,6 +52,14 @@ CREATE TABLE `clases` (
   `fecha_creacion` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+--
+-- Volcado de datos para la tabla `clases`
+--
+
+INSERT INTO `clases` (`id`, `profesor_id`, `alumno_id`, `materia_nombre_manual`, `fecha_hora`, `duracion_minutos`, `precio_total`, `estado`, `link_aula`, `fecha_creacion`) VALUES
+(1, 1, 2, 'informatica', '2026-05-18 18:00:00', 60, 0.00, 'pendiente', NULL, '2026-05-11 16:43:41'),
+(2, 1, 2, 'informatica', '2026-05-18 18:00:00', 60, 0.00, 'pendiente', NULL, '2026-05-11 16:43:42');
+
 -- --------------------------------------------------------
 
 --
@@ -65,6 +73,27 @@ CREATE TABLE `mensajes` (
   `contenido` text NOT NULL,
   `leido` tinyint(1) DEFAULT 0,
   `fecha_envio` timestamp NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Volcado de datos para la tabla `mensajes`
+--
+
+INSERT INTO `mensajes` (`id`, `remitente_id`, `destinatario_id`, `contenido`, `leido`, `fecha_envio`) VALUES
+(1, 1, 2, '¡Hola silvia! Bienvenido a ISIMatch. Estamos encantados de tenerte aquí. Explora la plataforma y cuéntanos si necesitas ayuda.', 1, '2026-05-08 15:00:28');
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `metodos_pago`
+--
+
+CREATE TABLE `metodos_pago` (
+  `id` int(11) NOT NULL,
+  `usuario_id` int(11) NOT NULL,
+  `tipo_tarjeta` varchar(20) DEFAULT 'Visa',
+  `ultimos_cuatro` varchar(4) NOT NULL,
+  `predeterminada` tinyint(1) DEFAULT 0
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
@@ -122,7 +151,8 @@ CREATE TABLE `usuarios` (
 --
 
 INSERT INTO `usuarios` (`id`, `nombre`, `apellidos`, `email`, `password_hash`, `telefono`, `rol`, `anio_nacimiento`, `fecha_registro`) VALUES
-(1, 'Sistema', 'ISIMatch', 'soporte@isimatch.com', 'no_password', NULL, 'profesor', 2002, '2026-05-08 14:57:59');
+(1, 'Sistema', 'ISIMatch', 'soporte@isimatch.com', '123456', NULL, 'profesor', 2002, '2026-05-08 14:57:59'),
+(2, 'silvia', '', 'silvia@hotmail.com', '$2y$10$0ny3fm1LyMXZZX/VxnlUdumDli/ZXRrSIOwf/g7Qtrd9DUASv.yP6', NULL, 'alumno', 2002, '2026-05-08 15:00:28');
 
 --
 -- Índices para tablas volcadas
@@ -149,6 +179,13 @@ ALTER TABLE `mensajes`
   ADD PRIMARY KEY (`id`),
   ADD KEY `remitente_id` (`remitente_id`),
   ADD KEY `destinatario_id` (`destinatario_id`);
+
+--
+-- Indices de la tabla `metodos_pago`
+--
+ALTER TABLE `metodos_pago`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `usuario_id` (`usuario_id`);
 
 --
 -- Indices de la tabla `profesores_detalles`
@@ -180,12 +217,18 @@ ALTER TABLE `usuarios`
 -- AUTO_INCREMENT de la tabla `clases`
 --
 ALTER TABLE `clases`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT de la tabla `mensajes`
 --
 ALTER TABLE `mensajes`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+
+--
+-- AUTO_INCREMENT de la tabla `metodos_pago`
+--
+ALTER TABLE `metodos_pago`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
@@ -198,7 +241,7 @@ ALTER TABLE `resenas`
 -- AUTO_INCREMENT de la tabla `usuarios`
 --
 ALTER TABLE `usuarios`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- Restricciones para tablas volcadas
@@ -223,6 +266,12 @@ ALTER TABLE `clases`
 ALTER TABLE `mensajes`
   ADD CONSTRAINT `mensajes_ibfk_1` FOREIGN KEY (`remitente_id`) REFERENCES `usuarios` (`id`) ON DELETE CASCADE,
   ADD CONSTRAINT `mensajes_ibfk_2` FOREIGN KEY (`destinatario_id`) REFERENCES `usuarios` (`id`) ON DELETE CASCADE;
+
+--
+-- Filtros para la tabla `metodos_pago`
+--
+ALTER TABLE `metodos_pago`
+  ADD CONSTRAINT `metodos_pago_ibfk_1` FOREIGN KEY (`usuario_id`) REFERENCES `usuarios` (`id`) ON DELETE CASCADE;
 
 --
 -- Filtros para la tabla `profesores_detalles`

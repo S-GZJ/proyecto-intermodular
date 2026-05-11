@@ -1,17 +1,34 @@
 <?php
-// --- LÓGICA DE SERVIDOR (PHP) ---
-session_start();
+/**
+ * ISIMatch - Dashboard del Alumno
+ * Este archivo centraliza la información relevante para el estudiante:
+ * estadísticas, clases próximas, solicitudes pendientes y mensajes
+ */
 
-/*-- ESCUDO DE SEGURIDAD --*/
+//--LÓGICA DE SERVIDOR (PHP)--
+
+//Iniciamos la sesión para acceder a los datos del usuario logueado
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+
+/*--ESCUDO DE SEGURIDAD--*/
+//Verificamos que el usuario tenga sesión activa y que su rol sea estrictamente 'alumno'
+//Si no cumple, se le expulsa a la página de login
 if (!isset($_SESSION['usuario_id']) || $_SESSION['rol'] != 'alumno') {
     header("Location: login.php");
     exit();
 }
 
+//Incluimos la conexión a la base de datos
 include '../PHP/conexion.php';
 $alumno_id = $_SESSION['usuario_id'];
 
-// 1. OBTENER ESTADÍSTICAS REALES
+//--CONSULTAS A LA BASE DE DATOS (Recopilación de Datos)---
+
+//--OBTENER ESTADÍSTICAS REALES--
+//Calculamos el total de clases hechas, sumamos los minutos para pasarlos a horas
+//y contamos cuántos profesores distintos ha tenido (DISTINCT)
 $sql_stats = "SELECT 
                 COUNT(id) as total_clases, 
                 SUM(duracion_minutos)/60 as total_horas,
@@ -21,7 +38,8 @@ $sql_stats = "SELECT
 $res_stats = $conn->query($sql_stats);
 $stats = $res_stats->fetch_assoc();
 
-// 2. OBTENER LA CLASE "EN UNAS HORAS"
+//OBTENER LA CLASE MÁS CERCANA ("EN UNAS HORAS")
+//Buscamos la clase que ya esté 'aceptada' y cuya fecha sea mayor a la actual (NOW())
 $sql_proxima = "SELECT c.*, u.nombre as profe_nombre, u.apellidos as profe_apellidos 
                 FROM clases c 
                 JOIN usuarios u ON c.profesor_id = u.id 
@@ -30,7 +48,8 @@ $sql_proxima = "SELECT c.*, u.nombre as profe_nombre, u.apellidos as profe_apell
 $res_proxima = $conn->query($sql_proxima);
 $proxima = $res_proxima->fetch_assoc();
 
-// 3. OBTENER MIS RESERVAS PENDIENTES
+//OBTENER SOLICITUDES ENVIADAS (PENDIENTES)
+//Clases que el alumno ha pedido pero el profesor aún no ha aceptado/rechazado
 $sql_reservas = "SELECT c.*, u.nombre as profe_nombre 
                  FROM clases c 
                  JOIN usuarios u ON c.profesor_id = u.id 
@@ -38,7 +57,8 @@ $sql_reservas = "SELECT c.*, u.nombre as profe_nombre
                  ORDER BY c.fecha_hora ASC";
 $res_reservas = $conn->query($sql_reservas);
 
-// 4. OBTENER CLASES RECIENTES
+//OBTENER HISTORIAL RECIENTE
+//Mostramos las últimas 3 clases finalizadas para que el alumno pueda valorarlas
 $sql_recientes = "SELECT c.*, u.nombre as profe_nombre 
                   FROM clases c 
                   JOIN usuarios u ON c.profesor_id = u.id 
@@ -46,12 +66,14 @@ $sql_recientes = "SELECT c.*, u.nombre as profe_nombre
                   ORDER BY c.fecha_hora DESC LIMIT 3";
 $res_recientes = $conn->query($sql_recientes);
 
-// 5. NUEVO: CONTADOR DE MENSAJES NO LEÍDOS
+//CONTADOR DE MENSAJES NO LEÍDOS
+//Consulta para mostrar el globo rojo de notificaciones en el icono de chat
 $sql_msj = "SELECT COUNT(*) as total FROM mensajes WHERE destinatario_id = '$alumno_id' AND leido = 0";
 $res_msj = $conn->query($sql_msj);
 $msj_data = $res_msj->fetch_assoc();
 $mensajes_pendientes = $msj_data['total'];
 
+//Sanitizamos el nombre del alumno para evitar ataques XSS al mostrarlo
 $nombre_alumno = htmlspecialchars($_SESSION['nombre']);
 ?>
 
@@ -71,6 +93,7 @@ $nombre_alumno = htmlspecialchars($_SESSION['nombre']);
       <div class="container">
         <a class="navbar-brand fw-bold text-primary-custom" href="../index.php">ISIMatch</a>
         <div class="ms-auto d-flex align-items-center gap-3">
+            
             <a href="mensajes.php" class="text-dark position-relative me-2">
                 <i class="bi bi-chat-dots fs-5"></i>
                 <?php if($mensajes_pendientes > 0): ?>
@@ -82,10 +105,11 @@ $nombre_alumno = htmlspecialchars($_SESSION['nombre']);
 
             <div class="dropdown">
                 <div class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center fw-bold" style="width:35px; height:35px; cursor:pointer;" data-bs-toggle="dropdown">
-                    <?php echo strtoupper(substr($nombre_alumno, 0, 1)); ?>
+                    <?php echo strtoupper(substr($nombre_alumno, 0, 1)); // Muestra la inicial en mayúscula ?>
                 </div>
                 <ul class="dropdown-menu dropdown-menu-end border-0 shadow mt-3">
                     <li><a class="dropdown-item py-2" href="ficha-alumno.php"><i class="bi bi-person me-2"></i> Mi Perfil</a></li>
+                    <li><a class="dropdown-item py-2" href="pagos-alumno.php"><i class="bi bi-credit-card me-2"></i> Pagos y Facturas</a></li>
                     <li><hr class="dropdown-divider"></li>
                     <li><a class="dropdown-item text-danger py-2" href="../PHP/logout.php"><i class="bi bi-box-arrow-right me-2"></i> Cerrar Sesión</a></li>
                 </ul>
@@ -109,12 +133,16 @@ $nombre_alumno = htmlspecialchars($_SESSION['nombre']);
                     <small class="text-muted fw-bold">CLASES</small>
                 </div>
             </div>
+            
             <div class="col-4">
-                <div class="card border-0 shadow-sm p-3 rounded-4">
-                    <h3 class="fw-bold mb-0"><?php echo round($stats['total_horas'], 1); ?>h</h3>
-                    <small class="text-muted fw-bold">HORAS</small>
-                </div>
+                <a href="pagos-alumno.php" class="text-decoration-none text-dark">
+                    <div class="card border-0 shadow-sm p-3 rounded-4 border-bottom border-primary border-3">
+                        <h3 class="fw-bold mb-0 text-primary"><?php echo round($stats['total_horas'], 1); ?>h</h3>
+                        <small class="text-muted fw-bold">MIS GASTOS <i class="bi bi-arrow-right-short"></i></small>
+                    </div>
+                </a>
             </div>
+
             <div class="col-4">
                 <div class="card border-0 shadow-sm p-3 rounded-4">
                     <h3 class="fw-bold mb-0"><?php echo (int)$stats['total_tutores']; ?></h3>

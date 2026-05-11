@@ -1,48 +1,59 @@
 <?php
-// --- GESTIÓN DE SESIÓN Y CONEXIÓN ---
+/**
+ * ISIMatch - Sistema de Acceso (Login)
+ * Este archivo gestiona la autenticación de usuarios y la creación de sesiones seguras
+ */
+
+//--GESTIÓN DE SESIÓN Y CONEXIÓN--
+
+//Iniciamos la sesión para poder guardar los datos del usuario logueado
 session_start(); 
 
-// Si el usuario ya está logueado, lo mandamos a su panel correspondiente directamente
+//REDIRECCIÓN AUTOMÁTICA: Si el usuario ya tiene una sesión iniciada, 
+//no le dejamos ver el login y lo mandamos directo a su panel.
 if (isset($_SESSION['usuario_id'])) {
     if ($_SESSION['rol'] == 'profesor') {
         header("Location: dashboard-profesor.php");
     } else {
         header("Location: dashboard-alumno.php");
     }
-    exit();
+    exit(); //Detenemos el script para que no cargue el resto de la página
 }
 
-// RUTA CORREGIDA: Conexión centralizada a la base de datos
+// Importamos la conexión centralizada a la base de datos
 include '../PHP/conexion.php'; 
 
-$error = ""; 
-$email_recuerdo = ""; 
+$error = ""; //Variable para guardar mensajes de error (ej contraseña mal escrita)
+$email_recuerdo = ""; //Para no obligar al usuario a escribir el email de nuevo si falla
 
-// --- PROCESAMIENTO DEL FORMULARIO ---
+//--PROCESAMIENTO DEL FORMULARIO (Cuando el usuario pulsa "Acceder")--
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     
+    //Limpiamos el email contra inyecciones SQL
     $email = $conn->real_escape_string($_POST['email']);
     $email_recuerdo = $email; 
     $password = $_POST['password'];
 
-    // Consulta para obtener datos del usuario
+    //Buscamos al usuario por su correo electrónico
     $sql = "SELECT id, nombre, password_hash, rol FROM usuarios WHERE email = '$email'";
     $resultado = $conn->query($sql);
 
+    //Verificamos si existe el usuario
     if ($resultado->num_rows > 0) {
         $usuario = $resultado->fetch_assoc(); 
         
-        // Verificación de seguridad con HASH
+        //SEGURIDAD: Comparamos la contraseña escrita con el HASH guardado en la DB
         if (password_verify($password, $usuario['password_hash'])) {
             
-            // Seguridad: regeneramos ID para prevenir secuestro de sesión
+            //SEGURIDAD EXTRA: Regeneramos el ID de sesión para evitar ataques de fijación de sesión
             session_regenerate_id(true);
             
+            //Guardamos los datos clave en la variable global $_SESSION
             $_SESSION['usuario_id'] = $usuario['id'];
             $_SESSION['nombre'] = $usuario['nombre'];
             $_SESSION['rol'] = $usuario['rol'];
 
-            // Redirección inteligente por roles
+            //Redireccionamos según el rol guardado en la base de datos
             if ($usuario['rol'] == 'profesor') {
                 header("Location: dashboard-profesor.php");
             } else {
@@ -148,22 +159,51 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     </div>
 
     <script>
-      function togglePassword() {
-        const input = document.getElementById("salidaContrasena");
-        const icono = document.getElementById("iconoOjo");
-        if (input.type === "password") {
-          input.type = "text";
-          icono.classList.replace("bi-eye", "bi-eye-slash");
-        } else {
-          input.type = "password";
-          icono.classList.replace("bi-eye-slash", "bi-eye");
+      /*FUNCIÓN: alternarVisibilidadContrasena
+       Esta función permite al usuario ver lo que ha escrito en el campo de contraseña
+      o volver a ocultarlo 
+       */
+      function alternarVisibilidadContrasena() {
+        //Buscamos el campo de entrada (input) por su ID 
+        const campoEntrada = document.getElementById("entradaContrasena");
+        
+        //Buscamos el elemento del icono (el ojo) por su ID 
+        const iconoOjo = document.getElementById("iconoOjo");
+
+        //Comprobamos el tipo de entrada actual del campo
+        if (campoEntrada.type === "password") {
+          //Si está oculto (tipo password), lo cambiamos a "text" para que sea visible
+          campoEntrada.type = "text";
+          
+          //Cambiamos visualmente el icono, reemplazamos el ojo normal por el ojo tachado
+          iconoOjo.classList.replace("bi-eye", "bi-eye-slash");
+        } 
+        else {
+          //Si ya es visible, lo volvemos a ocultar cambiando el tipo de nuevo a password
+          campoEntrada.type = "password";
+          
+          //Restauramos el icono original (ojo abierto)
+          iconoOjo.classList.replace("bi-eye-slash", "bi-eye");
         }
       }
 
-      document.getElementById("loginForm").addEventListener("submit", function (evento) {
-        const boton = this.querySelector('button[type="submit"]');
-        boton.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span> VERIFICANDO...';
-        boton.classList.add("disabled");
+      /*EVENTO: Envío del Formulario (Submit)
+       Este bloque se activa automáticamente cuando el usuario pulsa el botón de "ACCEDER"
+       */
+      document.getElementById("formularioLogin").addEventListener("submit", function (evento) {
+        
+        //Identificamos el botón de envío dentro del formulario para poder modificarlo
+        const botonEnvio = this.querySelector('button[type="submit"]');
+        
+        //FEEDBACK VISUAL:
+        //Modificamos el interior del botón para incluir el círculo de carga 
+        //y cambiamos el texto a "VERIFICANDO..." para informar al usuario
+        botonEnvio.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span> VERIFICANDO...';
+        
+        //SEGURIDAD Y PREVENCIÓN:
+        //Desactivamos el botón (propiedad disabled). Esto evita que un usuario 
+        //haga clic varias veces seguidas y envíe peticiones duplicadas al servidor
+        botonEnvio.classList.add("disabled");
       });
     </script>
   </body>

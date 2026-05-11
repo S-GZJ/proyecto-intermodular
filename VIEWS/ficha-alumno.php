@@ -1,52 +1,69 @@
 <?php
-// --- LÓGICA DE CONTROL DE SESIÓN Y SEGURIDAD ---
-session_start();
+// --LÓGICA DE CONTROL DE SESIÓN Y SEGURIDAD---
 
-/*-- ESCUDO DE SEGURIDAD --*/
+//Iniciamos la sesión para poder acceder a las variables globales del usuario
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+
+/*--ESCUDO DE SEGURIDAD--*/
+//Verificamos que el usuario esté logueado y que sea un alumno
+//Si no es así, lo mandamos de vuelta al login por seguridad
 if (!isset($_SESSION['usuario_id']) || $_SESSION['rol'] != 'alumno') {
     header("Location: login.php");
     exit();
 }
 
+//Incluimos la conexión a la base de datos
 include '../PHP/conexion.php';
 $usuario_id = $_SESSION['usuario_id'];
 
-/*-- PROCESAMIENTO DE CAMBIOS (UPDATE) --*/
-$mensaje_feedback = "";
+/*--PROCESAMIENTO DE CAMBIOS (Cuando el usuario envía el formulario)--*/
+$mensaje_feedback = ""; // Variable para guardar el mensaje de éxito o error
+
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    //Limpiamos los datos recibidos del formulario para evitar inyecciones SQL
     $nombre = $conn->real_escape_string($_POST['nombre']);
     $apellidos = $conn->real_escape_string($_POST['apellidos']);
     $telefono = $conn->real_escape_string($_POST['telefono']);
     $objetivos = $conn->real_escape_string($_POST['objetivos']);
-    $nivel = $conn->real_escape_string($_POST['nivel']); // NUEVO CAMPO
+    $nivel = $conn->real_escape_string($_POST['nivel']); 
 
+    //Iniciamos una transacción: o se guarda todo o no se guarda nada
     $conn->begin_transaction();
 
     try {
-        // 1. Actualizar tabla principal
+        //Actualizamos los datos básicos en la tabla principal de usuarios
         $sql_u = "UPDATE usuarios SET nombre='$nombre', apellidos='$apellidos', telefono='$telefono' WHERE id='$usuario_id'";
         $conn->query($sql_u);
 
-        // 2. Actualizar detalles del alumno (Incluyendo el Nivel Actual)
+        //Actualizamos o insertamos los detalles específicos del alumno
+        // ON DUPLICATE KEY UPDATE: Si ya existe el registro, lo actualiza, si no, lo crea
         $sql_ad = "INSERT INTO alumnos_detalles (usuario_id, objetivos_aprendizaje, nivel_actual) 
                    VALUES ('$usuario_id', '$objetivos', '$nivel')
                    ON DUPLICATE KEY UPDATE objetivos_aprendizaje='$objetivos', nivel_actual='$nivel'";
         $conn->query($sql_ad);
 
+        //Si todo salió ok, guardamos los cambios definitivamente
         $conn->commit();
+        
+        //Actualizamos el nombre en la sesión para que el cambio se vea reflejado en la Navbar inmediatamente
         $_SESSION['nombre'] = $nombre; 
 
+        //Creamos una alerta visual de éxito (Bootstrap)
         $mensaje_feedback = "<div class='alert alert-success alert-dismissible fade show border-0 shadow-sm' role='alert'>
                                 <i class='bi bi-check-circle-fill me-2'></i> Perfil actualizado correctamente.
                                 <button type='button' class='btn-close' data-bs-dismiss='alert'></button>
                              </div>";
     } catch (Exception $e) {
+        //Si hay algún error, cancelamos los cambios en la base de datos
         $conn->rollback();
         $mensaje_feedback = "<div class='alert alert-danger border-0 shadow-sm'>Error al guardar: " . $conn->error . "</div>";
     }
 }
 
-/*-- CARGA DE DATOS ACTUALES --*/
+/*--CARGA DE DATOS ACTUALES (Para rellenar el formulario)--*/
+//Hacemos un LEFT JOIN para traer los datos de 'usuarios' y 'alumnos_detalles' en una sola consulta
 $sql = "SELECT u.nombre, u.apellidos, u.email, u.telefono, ad.objetivos_aprendizaje, ad.nivel_actual 
         FROM usuarios u 
         LEFT JOIN alumnos_detalles ad ON u.id = ad.usuario_id 
@@ -55,6 +72,7 @@ $sql = "SELECT u.nombre, u.apellidos, u.email, u.telefono, ad.objetivos_aprendiz
 $resultado = $conn->query($sql);
 $datos = $resultado->fetch_assoc();
 
+//Preparamos la inicial para el avatar y limpiamos el nombre para evitar ataques XSS
 $nombre_mostrar = htmlspecialchars($datos['nombre']);
 $inicial = strtoupper(substr($nombre_mostrar, 0, 1));
 ?>
@@ -76,10 +94,23 @@ $inicial = strtoupper(substr($nombre_mostrar, 0, 1));
         <a class="navbar-brand fw-bold text-primary-custom" href="dashboard-alumno.php">
             <i class="bi bi-mortarboard-fill"></i> ISIMatch
         </a>
-        <div class="ms-auto">
-            <a href="dashboard-alumno.php" class="btn btn-outline-primary btn-sm rounded-pill px-3 fw-bold">
-                <i class="bi bi-arrow-left me-1"></i> Panel de Alumno
+        
+        <div class="ms-auto d-flex align-items-center gap-3">
+            <a href="dashboard-alumno.php" class="btn btn-outline-primary btn-sm rounded-pill px-3 fw-bold d-none d-md-inline-block">
+                <i class="bi bi-arrow-left me-1"></i> Volver al Panel
             </a>
+
+            <div class="dropdown">
+                <div class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center fw-bold shadow-sm" style="width:35px; height:35px; cursor:pointer;" data-bs-toggle="dropdown">
+                    <?php echo $inicial; ?>
+                </div>
+                <ul class="dropdown-menu dropdown-menu-end border-0 shadow mt-3">
+                    <li><a class="dropdown-item py-2 fw-bold" href="dashboard-alumno.php"><i class="bi bi-grid-1x2 me-2"></i> Mi Dashboard</a></li>
+                    <li><a class="dropdown-item py-2" href="pagos-alumno.php"><i class="bi bi-credit-card me-2"></i> Pagos y Facturas</a></li>
+                    <li><hr class="dropdown-divider"></li>
+                    <li><a class="dropdown-item text-danger py-2" href="../PHP/logout.php"><i class="bi bi-box-arrow-right me-2"></i> Cerrar Sesión</a></li>
+                </ul>
+            </div>
         </div>
       </div>
     </nav>
@@ -151,7 +182,7 @@ $inicial = strtoupper(substr($nombre_mostrar, 0, 1));
                                 </div>
                                 <div class="col-12">
                                     <label class="form-label small fw-bold text-muted">MIS OBJETIVOS Y MATERIAS DE INTERÉS</label>
-                                    <textarea name="objetivos" class="form-control bg-light border-0" rows="5" placeholder="Ej: Necesito refuerzo en matemáticas de 2º de Bachillerato y me gustaría mejorar mi nivel de conversación en inglés..."><?php echo htmlspecialchars($datos['objetivos_aprendizaje'] ?? ''); ?></textarea>
+                                    <textarea name="objetivos" class="form-control bg-light border-0" rows="5" placeholder="Ej: Necesito refuerzo en matemáticas..."><?php echo htmlspecialchars($datos['objetivos_aprendizaje'] ?? ''); ?></textarea>
                                 </div>
                             </div>
                         </div>

@@ -1,17 +1,31 @@
 <?php
-// --- LÓGICA DE SERVIDOR (PHP) ---
+/**
+ * ISIMatch - Dashboard del Profesor
+ * Este archivo gestiona la vista principal para los profesores, mostrando
+ * estadísticas de ingresos, gestión de solicitudes y próximas sesiones.
+ */
+
+//--LÓGICA DE SERVIDOR (PHP)---
+
+//Iniciamos la sesión para identificar al usuario
 session_start(); 
 
-/*-- ESCUDO DE SEGURIDAD --*/
+/*--ESCUDO DE SEGURIDAD--*/
+//Verificamos que el usuario esté logueado y que sea específicamente un profesor
+//Si no lo es, lo redirigimos al login para proteger la información
 if (!isset($_SESSION['usuario_id']) || $_SESSION['rol'] != 'profesor') {
     header("Location: login.php");
     exit();
 }
 
+//Conexión a la base de datos
 include '../PHP/conexion.php';
 $profesor_id = $_SESSION['usuario_id'];
 
-// 1. OBTENER PRÓXIMA CLASE ACEPTADA (Dinamismo Real)
+//--CONSULTAS DE DATOS (Dinamismo del Panel)--
+
+//--OBTENER PRÓXIMA CLASE ACEPTADA--
+//Buscamos la clase confirmada más cercana en el tiempo (fecha > NOW) que aún no ha ocurrido
 $sql_proxima = "SELECT c.*, u.nombre, u.apellidos 
                 FROM clases c 
                 JOIN usuarios u ON c.alumno_id = u.id 
@@ -20,7 +34,8 @@ $sql_proxima = "SELECT c.*, u.nombre, u.apellidos
 $res_proxima = $conn->query($sql_proxima);
 $proxima = $res_proxima->fetch_assoc();
 
-// 2. SOLICITUDES PENDIENTES
+//--SOLICITUDES PENDIENTES--
+//Obtenemos las clases que los alumnos han reservado pero que el profesor aún no ha aceptado
 $sql_pendientes = "SELECT c.*, u.nombre, u.apellidos 
                    FROM clases c 
                    JOIN usuarios u ON c.alumno_id = u.id 
@@ -28,7 +43,9 @@ $sql_pendientes = "SELECT c.*, u.nombre, u.apellidos
                    ORDER BY c.fecha_hora ASC";
 $res_pendientes = $conn->query($sql_pendientes);
 
-// 3. ESTADÍSTICAS (Ingresos, Alumnos y Mensajes No Leídos)
+//--ESTADÍSTICAS GLOBALES--
+//Usamos subconsultas para obtener en una sola fila: Ingresos totales,
+//número de alumnos distintos y mensajes nuevos.
 $sql_stats = "SELECT 
                 (SELECT SUM(precio_total) FROM clases WHERE profesor_id = '$profesor_id' AND estado = 'completada') as ingresos, 
                 (SELECT COUNT(DISTINCT alumno_id) FROM clases WHERE profesor_id = '$profesor_id') as alumnos,
@@ -36,7 +53,8 @@ $sql_stats = "SELECT
 $res_stats = $conn->query($sql_stats);
 $stats = $res_stats->fetch_assoc();
 
-// 4. ALUMNOS RECIENTES (Para seguimiento)
+//--ALUMNOS RECIENTES--
+//Lista de los últimos 4 alumnos con los que el profesor ha tenido contacto para facilitar el seguimiento.
 $sql_alumnos = "SELECT DISTINCT u.id, u.nombre, u.apellidos 
                 FROM usuarios u 
                 JOIN clases c ON u.id = c.alumno_id 
@@ -44,9 +62,11 @@ $sql_alumnos = "SELECT DISTINCT u.id, u.nombre, u.apellidos
                 ORDER BY c.fecha_hora DESC LIMIT 4";
 $res_alumnos = $conn->query($sql_alumnos);
 
+//Preparamos el nombre y la inicial para la interfaz
 $nombre_usuario = htmlspecialchars($_SESSION['nombre']);
 $inicial = strtoupper(substr($nombre_usuario, 0, 1));
 ?>
+
 
 <!doctype html>
 <html lang="es">
@@ -59,6 +79,7 @@ $inicial = strtoupper(substr($nombre_usuario, 0, 1));
     <link rel="stylesheet" href="../CSS/style.css" />
 </head>
 <body class="bg-light">
+    
     <nav class="navbar navbar-expand-lg bg-white shadow-sm sticky-top">
       <div class="container">
         <a class="navbar-brand fw-bold d-flex align-items-center gap-2" href="../index.php">

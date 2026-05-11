@@ -1,42 +1,61 @@
 <?php
-// --- LÓGICA DE SERVIDOR (PHP) ---
-session_start();
+/*
+ * ISIMatch - Catálogo de Profesores
+ * Este archivo gestiona la búsqueda, filtrado y visualización de profesores
+ */
+
+//--LÓGICA DE SERVIDOR (PHP)--
+
+//Iniciamos la sesión de forma segura para identificar al usuario
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+
+//Conexión a la base de datos (localhost o servidor)
 include '../PHP/conexion.php'; 
 
-// 1. Verificación de identidad para una Navbar dinámica
+//Verificamos si el usuario ha iniciado sesión
 $esta_logueado = isset($_SESSION['usuario_id']);
+
+//Si está logueado, obtenemos sus datos; si no, valores por defecto para evitar errores
 $rol_usuario = $esta_logueado ? $_SESSION['rol'] : '';
 $nombre_usuario = $esta_logueado ? htmlspecialchars($_SESSION['nombre']) : '';
 $letra_usuario = $esta_logueado ? strtoupper(substr($nombre_usuario, 0, 1)) : 'U';
 
-// Redirecciones dinámicas según el rol del que navega
+//Definimos rutas dinámicas: el menú enviará al usuario a un sitio u otro según su rol
 $link_panel = ($rol_usuario == 'profesor') ? 'dashboard-profesor.php' : 'dashboard-alumno.php';
 $link_perfil_propio = ($rol_usuario == 'profesor') ? 'ficha-profesor.php' : 'ficha-alumno.php';
 
-// 2. PROCESAMIENTO DE FILTROS INTELIGENTES
+//--PROCESAMIENTO DE FILTROS--
+
+// Recogemos lo que el usuario escribe en el buscador y lo limpiamos contra ataques SQL (Inyección)
 $busqueda = isset($_GET['q']) ? $conn->real_escape_string($_GET['q']) : '';
+
+//Recogemos el precio máximo del filtro deslizante (por defecto 100€)
 $precio_max = isset($_GET['precio']) ? (int)$_GET['precio'] : 100;
 
-// Consulta SQL Dinámica (Relacionando usuarios con sus detalles profesionales)
+//Consulta SQL Base: Unimos la tabla de usuarios con la de detalles profesionales
+//Solo buscamos usuarios que tengan el rol de 'profesor'
 $sql_base = "SELECT u.id, u.nombre, u.apellidos, pd.titulo_profesional, pd.tarifa_hora, pd.bio, pd.valoracion_media 
              FROM usuarios u 
              LEFT JOIN profesores_detalles pd ON u.id = pd.usuario_id 
              WHERE u.rol = 'profesor'";
 
-// Aplicar filtros de texto (Nombre o Título)
+//Si el usuario escribió algo en el buscador, añadimos condiciones a la consulta
 if (!empty($busqueda)) {
     $sql_base .= " AND (u.nombre LIKE '%$busqueda%' OR u.apellidos LIKE '%$busqueda%' OR pd.titulo_profesional LIKE '%$busqueda%')";
 }
 
-// Aplicar filtro de precio (Tarifa por hora)
+//Aplicamos siempre el filtro de precio máximo
 $sql_base .= " AND pd.tarifa_hora <= $precio_max";
 
-// Ordenar por valoración para destacar a los mejores
+//Ordenamos para que los profesores mejor valorados aparezcan primero
 $sql_base .= " ORDER BY pd.valoracion_media DESC, u.id DESC";
 
+//Ejecutamos la consulta en la base de datos
 $res = $conn->query($sql_base);
 
-// 3. CONTADOR DE MENSAJES (Si está logueado)
+//Si el usuario está logueado, contamos sus mensajes sin leer para mostrar la notificación (punto rojo)
 $mensajes_nuevos = 0;
 if($esta_logueado) {
     $mi_id = $_SESSION['usuario_id'];
@@ -57,13 +76,16 @@ if($esta_logueado) {
     <link rel="stylesheet" href="../CSS/style.css"/>
 </head>
 <body class="bg-light">
+    
     <nav class="navbar navbar-expand-lg fixed-top py-3 bg-white shadow-sm">
       <div class="container">
         <a class="navbar-brand fw-bold fs-3" href="../index.php">ISIMatch</a>
         
         <div class="collapse navbar-collapse justify-content-center">
           <ul class="navbar-nav gap-3">
-            <li class="nav-item"><a class="nav-link fw-bold text-primary-custom" href="catalogo.php">Encontrar profesor</a></li>
+            <li class="nav-item">
+                <a class="nav-link fw-bold text-primary-custom" href="catalogo.php">Encontrar profesor</a>
+            </li>
           </ul>
         </div>
 
@@ -88,6 +110,11 @@ if($esta_logueado) {
               <ul class="dropdown-menu dropdown-menu-end border-0 shadow-lg mt-3">
                 <li><a class="dropdown-item py-2" href="<?php echo $link_panel; ?>"><i class="bi bi-grid-fill me-2"></i>Mi Panel</a></li>
                 <li><a class="dropdown-item py-2" href="<?php echo $link_perfil_propio; ?>"><i class="bi bi-person-fill me-2"></i>Mi Perfil</a></li>
+                
+                <?php if($rol_usuario == 'alumno'): ?>
+                    <li><a class="dropdown-item py-2" href="pagos-alumno.php"><i class="bi bi-credit-card-fill me-2"></i>Pagos y Facturas</a></li>
+                <?php endif; ?>
+
                 <li><hr class="dropdown-divider" /></li>
                 <li><a class="dropdown-item text-danger py-2" href="../PHP/logout.php"><i class="bi bi-box-arrow-right me-2"></i>Cerrar sesión</a></li>
               </ul>
@@ -130,8 +157,10 @@ if($esta_logueado) {
 
       <div class="row g-4">
         <?php
+        //Si la consulta devuelve resultados, recorremos cada profesor
         if ($res && $res->num_rows > 0) {
             while($profe = $res->fetch_assoc()) {
+                //Preparamos los datos de cada tarjeta
                 $inicial = strtoupper(substr($profe['nombre'], 0, 1));
                 $tarifa = number_format($profe['tarifa_hora'] ?? 15, 0);
                 $rating = $profe['valoracion_media'] ?? '5.0';
@@ -180,7 +209,7 @@ if($esta_logueado) {
                 <?php
             }
         } else {
-            // Estado vacío (Empty State)
+            //Si la búsqueda no encuentra resultados, mostramos este mensaje
             echo "
             <div class='col-12 text-center py-5'>
                 <div class='mb-4'>

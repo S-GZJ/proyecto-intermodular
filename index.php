@@ -2,7 +2,7 @@
 /*-- INICIO DE SESIÓN Y LÓGICA DE CONTROL --*/
 session_start();
 
-// Variable para el control de acceso en el Frontend
+//Variable para el control de acceso en el Frontend
 $esta_logueado = isset($_SESSION['usuario_id']) ? 'true' : 'false';
 ?>
 <!doctype html>
