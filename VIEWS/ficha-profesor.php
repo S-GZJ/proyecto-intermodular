@@ -1,14 +1,13 @@
 <?php
 /**
  * ISIMatch - Perfil Público del Profesor
- * Este archivo muestra la biografía, valoraciones y el formulario de reserva de un tutor
+ * Este archivo muestra la biografía, valoraciones y permite la edición rápida si es el dueño.
  */
 
 //--LÓGICA DE SERVIDOR (PHP)--
 session_start();
 
 /*--ESCUDO DE SEGURIDAD--*/
-// Solo usuarios registrados (alumnos o profesores) pueden ver perfiles detallados
 if (!isset($_SESSION['usuario_id'])) {
     header("Location: login.php");
     exit();
@@ -17,18 +16,35 @@ if (!isset($_SESSION['usuario_id'])) {
 /*Conectar con la base de datos*/
 include '../PHP/conexion.php';
 
+$mi_id = $_SESSION['usuario_id'];
+
 /*--IDENTIFICACIÓN DEL PERFIL--*/
-//Si recibimos un ID por la URL (?id=5), mostramos ese perfil
-//Si no, mostramos el perfil del propio usuario logueado (vista previa)
 if (isset($_GET['id']) && !empty($_GET['id'])) {
     $perfil_id = $conn->real_escape_string($_GET['id']);
 } else {
-    $perfil_id = $_SESSION['usuario_id'];
+    $perfil_id = $mi_id;
 }
 
-/*--CONSULTA SQL DINÁMICA--*/
-//Obtenemos los datos personales y profesionales del profesor solicitado
-$sql = "SELECT u.id, u.nombre, u.apellidos, pd.titulo_profesional, pd.bio, pd.tarifa_hora, pd.valoracion_media, pd.total_resenas 
+$es_mi_propio_perfil = ($mi_id == $perfil_id);
+
+/*-- LÓGICA DE ACTUALIZACIÓN RÁPIDA --*/
+// Si el profesor envía el formulario de edición rápida desde esta misma página
+if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['actualizar_detalles_rapido'])) {
+    $nuevos_idiomas = $conn->real_escape_string($_POST['idiomas']);
+    $nuevo_tiempo = $conn->real_escape_string($_POST['tiempo_respuesta']);
+    
+    $sql_update = "UPDATE profesores_detalles SET idiomas='$nuevos_idiomas', tiempo_respuesta='$nuevo_tiempo' WHERE usuario_id = '$mi_id'";
+    
+    if ($conn->query($sql_update)) {
+        // Recargamos para limpiar el POST y mostrar los nuevos datos
+        header("Location: ficha-profesor.php?id=" . $perfil_id);
+        exit();
+    }
+}
+
+/*--CONSULTA SQL DINÁMICA ACTUALIZADA--*/
+$sql = "SELECT u.id, u.nombre, u.apellidos, pd.titulo_profesional, pd.bio, pd.tarifa_hora, 
+               pd.valoracion_media, pd.total_resenas, pd.idiomas, pd.tiempo_respuesta 
         FROM usuarios u 
         LEFT JOIN profesores_detalles pd ON u.id = pd.usuario_id 
         WHERE u.id = '$perfil_id' AND u.rol = 'profesor'";
@@ -36,18 +52,15 @@ $sql = "SELECT u.id, u.nombre, u.apellidos, pd.titulo_profesional, pd.bio, pd.ta
 $resultado = $conn->query($sql);
 $profe = $resultado->fetch_assoc();
 
-//Si el ID no pertenece a un profesor o no existe, detenemos la ejecución.
 if (!$profe) {
     die("El perfil solicitado no existe o no está disponible. <a href='catalogo.php'>Volver al catálogo</a>");
 }
 
-//Variables auxiliares para el diseño
+//Variables auxiliares
 $nombre_completo = htmlspecialchars($profe['nombre'] . " " . $profe['apellidos']);
 $letra_avatar = strtoupper(substr($profe['nombre'], 0, 1));
-$es_mi_propio_perfil = ($_SESSION['usuario_id'] == $perfil_id);
 
 /*--CONSULTA DE RESEÑAS REALES--*/
-//Traemos las últimas 3 opiniones de alumnos 
 $sql_resenas = "SELECT r.*, u.nombre FROM resenas r JOIN usuarios u ON r.alumno_id = u.id WHERE r.profesor_id = '$perfil_id' ORDER BY r.fecha_resena DESC LIMIT 3";
 $res_resenas = $conn->query($sql_resenas);
 ?>
@@ -162,34 +175,56 @@ $res_resenas = $conn->query($sql_resenas);
                                 <i class="bi bi-calendar-check me-2"></i> SOLICITAR RESERVA
                             </button>
                         </form>
-                        
-                        <div class="d-flex align-items-center justify-content-center gap-2 text-muted small">
-                            <i class="bi bi-shield-lock-fill text-success"></i>
-                            <span>Reserva protegida por ISIMatch</span>
-                        </div>
-                    
                     <?php else: ?>
                         <div class="text-center">
                             <div class="alert alert-secondary border-0 small mb-4 py-3">
                                 <i class="bi bi-eye-fill me-2"></i> Vista previa de tu perfil público.
                             </div>
                             <a href="configuracion-profesor.php" class="btn btn-dark w-100 py-3 rounded-pill fw-bold shadow-sm">
-                                <i class="bi bi-pencil-square me-2"></i> EDITAR MI PERFIL
+                                <i class="bi bi-pencil-square me-2"></i> IR A CONFIGURACIÓN
                             </a>
                         </div>
                     <?php endif; ?>
                 </div>
                 
-                <div class="card border-0 shadow-sm p-3 mt-4 rounded-4 bg-white">
-                    <h6 class="fw-bold small mb-3">Detalles del Tutor</h6>
-                    <div class="d-flex flex-column gap-2">
-                        <div class="d-flex align-items-center gap-2 small">
-                            <i class="bi bi-translate text-primary"></i> <span>Idiomas: Español, Inglés (C1)</span>
+                <div class="card border-0 shadow-sm p-4 mt-4 rounded-4 bg-white">
+                    <h6 class="fw-bold small mb-3 text-uppercase text-muted">Detalles del Tutor</h6>
+                    
+                    <?php if ($es_mi_propio_perfil): ?>
+                        <form action="ficha-profesor.php?id=<?php echo $perfil_id; ?>" method="POST">
+                            <input type="hidden" name="actualizar_detalles_rapido" value="1">
+                            
+                            <div class="mb-3">
+                                <label class="form-label small fw-bold"><i class="bi bi-translate text-primary me-1"></i> IDIOMAS</label>
+                                <input type="text" name="idiomas" class="form-control form-control-sm bg-light border-0" 
+                                       value="<?php echo htmlspecialchars($profe['idiomas'] ?? 'Español'); ?>" placeholder="Ej: Español, Inglés">
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label small fw-bold"><i class="bi bi-clock-history text-primary me-1"></i> RESPUESTA</label>
+                                <select name="tiempo_respuesta" class="form-select form-select-sm bg-light border-0">
+                                    <option value="menos de 1h" <?php echo ($profe['tiempo_respuesta'] == 'menos de 1h') ? 'selected' : ''; ?>>menos de 1h</option>
+                                    <option value="unas pocas horas" <?php echo ($profe['tiempo_respuesta'] == 'unas pocas horas') ? 'selected' : ''; ?>>unas pocas horas</option>
+                                    <option value="menos de 24h" <?php echo ($profe['tiempo_respuesta'] == 'menos de 24h') ? 'selected' : ''; ?>>menos de 24h</option>
+                                </select>
+                            </div>
+
+                            <button type="submit" class="btn btn-primary-custom btn-sm w-100 rounded-pill shadow-sm">
+                                <i class="bi bi-save me-1"></i> Guardar cambios
+                            </button>
+                        </form>
+                    <?php else: ?>
+                        <div class="d-flex flex-column gap-3">
+                            <div class="d-flex align-items-center gap-2 small">
+                                <i class="bi bi-translate text-primary fs-5"></i> 
+                                <span>Idiomas: <strong><?php echo htmlspecialchars($profe['idiomas'] ?? 'Español'); ?></strong></span>
+                            </div>
+                            <div class="d-flex align-items-center gap-2 small">
+                                <i class="bi bi-clock-history text-primary fs-5"></i> 
+                                <span>Responde en: <strong><?php echo htmlspecialchars($profe['tiempo_respuesta'] ?? 'menos de 24h'); ?></strong></span>
+                            </div>
                         </div>
-                        <div class="d-flex align-items-center gap-2 small">
-                            <i class="bi bi-clock-history text-primary"></i> <span>Responde en menos de 1h</span>
-                        </div>
-                    </div>
+                    <?php endif; ?>
                 </div>
             </div>
 

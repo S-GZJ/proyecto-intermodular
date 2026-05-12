@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1
--- Tiempo de generación: 11-05-2026 a las 19:45:30
+-- Tiempo de generación: 12-05-2026 a las 15:44:02
 -- Versión del servidor: 10.4.32-MariaDB
 -- Versión de PHP: 8.2.12
 
@@ -80,7 +80,9 @@ CREATE TABLE `mensajes` (
 --
 
 INSERT INTO `mensajes` (`id`, `remitente_id`, `destinatario_id`, `contenido`, `leido`, `fecha_envio`) VALUES
-(1, 1, 2, '¡Hola silvia! Bienvenido a ISIMatch. Estamos encantados de tenerte aquí. Explora la plataforma y cuéntanos si necesitas ayuda.', 1, '2026-05-08 15:00:28');
+(1, 1, 2, '¡Hola silvia! Bienvenido a ISIMatch. Estamos encantados de tenerte aquí. Explora la plataforma y cuéntanos si necesitas ayuda.', 1, '2026-05-08 15:00:28'),
+(2, 2, 1, 'lll', 0, '2026-05-11 17:59:14'),
+(3, 1, 3, '¡Hola Profe! Bienvenido a ISIMatch. Estamos encantados de tenerte aquí.', 0, '2026-05-11 19:39:30');
 
 -- --------------------------------------------------------
 
@@ -109,8 +111,17 @@ CREATE TABLE `profesores_detalles` (
   `tarifa_hora` decimal(10,2) DEFAULT 15.00,
   `linkedin_url` varchar(255) DEFAULT NULL,
   `valoracion_media` decimal(3,2) DEFAULT 5.00,
-  `total_resenas` int(11) DEFAULT 0
+  `total_resenas` int(11) DEFAULT 0,
+  `idiomas` varchar(255) DEFAULT 'Español',
+  `tiempo_respuesta` varchar(100) DEFAULT 'menos de 1h'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Volcado de datos para la tabla `profesores_detalles`
+--
+
+INSERT INTO `profesores_detalles` (`usuario_id`, `titulo_profesional`, `bio`, `tarifa_hora`, `linkedin_url`, `valoracion_media`, `total_resenas`, `idiomas`, `tiempo_respuesta`) VALUES
+(3, 'informatica', '', 15.00, '', 5.00, 0, 'Español', 'menos de 1h');
 
 -- --------------------------------------------------------
 
@@ -152,7 +163,8 @@ CREATE TABLE `usuarios` (
 
 INSERT INTO `usuarios` (`id`, `nombre`, `apellidos`, `email`, `password_hash`, `telefono`, `rol`, `anio_nacimiento`, `fecha_registro`) VALUES
 (1, 'Sistema', 'ISIMatch', 'soporte@isimatch.com', '123456', NULL, 'profesor', 2002, '2026-05-08 14:57:59'),
-(2, 'silvia', '', 'silvia@hotmail.com', '$2y$10$0ny3fm1LyMXZZX/VxnlUdumDli/ZXRrSIOwf/g7Qtrd9DUASv.yP6', NULL, 'alumno', 2002, '2026-05-08 15:00:28');
+(2, 'silvia', '', 'silvia@hotmail.com', '$2y$10$0ny3fm1LyMXZZX/VxnlUdumDli/ZXRrSIOwf/g7Qtrd9DUASv.yP6', NULL, 'alumno', 2002, '2026-05-08 15:00:28'),
+(3, 'Profe', 'Prueba', 'isimatch@hotmail.com', '$2y$10$v8rOXs6eIch8a.D51Em2oujNl3u9QFGX3rJWYHNjM5ko4eiQRb68m', '', 'profesor', 2002, '2026-05-11 19:39:30');
 
 --
 -- Índices para tablas volcadas
@@ -223,7 +235,7 @@ ALTER TABLE `clases`
 -- AUTO_INCREMENT de la tabla `mensajes`
 --
 ALTER TABLE `mensajes`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- AUTO_INCREMENT de la tabla `metodos_pago`
@@ -241,7 +253,7 @@ ALTER TABLE `resenas`
 -- AUTO_INCREMENT de la tabla `usuarios`
 --
 ALTER TABLE `usuarios`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- Restricciones para tablas volcadas
