@@ -9,7 +9,7 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" />
 
     <style>
-      /* DISEÑO DE INMERSIÓN: Tema oscuro para centrar la atención en el contenido */
+      /*--Diseño general, tema oscuro para centrar la atención en el contenido--*/
       body {
         background-color: #202124;
         color: white;
@@ -17,7 +17,7 @@
         height: 100vh;
       }
 
-      /* Layout principal: Espacio para vídeo y chat lateral */
+      /*--Layout principal, espacio para vídeo y chat lateral--*/
       .main-container {
         display: flex;
         height: calc(100vh - 100px);
@@ -25,7 +25,7 @@
         gap: 15px;
       }
 
-      /* Contenedor del vídeo principal (Profesor o Pantalla compartida) */
+      /*--Contenedor del vídeo principal (Profesor o pantalla compartida)--*/
       .video-profe-container {
         flex: 3;
         position: relative;
@@ -35,7 +35,7 @@
         box-shadow: 0 8px 32px rgba(0,0,0,0.3);
       }
 
-      /* Miniatura flotante de la cámara del alumno */
+      /*--Miniatura flotante de la cámara del alumno--*/
       .mi-webcam {
         position: absolute;
         bottom: 20px;
@@ -48,7 +48,7 @@
         z-index: 10;
       }
 
-      /* PANEL DE CHAT LATERAL AVANZADO */
+      /*--PANEL DE CHAT LATERAL AVANZADO--*/
       .chat-lateral {
         flex: 1;
         background-color: white;
@@ -59,12 +59,12 @@
         box-shadow: 0 4px 15px rgba(0,0,0,0.2);
       }
 
-      /* Estilización de los mensajes en el chat */
+      /*Estilos de los mensajes en el chat*/
       .item-mensaje {
         transition: opacity 0.3s ease;
       }
 
-      /* BARRA DE CONTROLES INFERIOR */
+      /*--BARRA DE CONTROLES INFERIOR--*/
       .controles {
         height: 100px;
         background-color: #202124;
@@ -75,7 +75,7 @@
         gap: 15px;
       }
 
-      /* Botones circulares de acción */
+      /*--Botones circulares de acción--*/
       .btn-circular {
         width: 50px; height: 50px;
         border-radius: 50%;
@@ -91,7 +91,7 @@
       .btn-circular.active { background-color: #3bb3bd; }
       .btn-colgar { background-color: #ea4335; width: 75px; border-radius: 25px; }
 
-      /* Animación visual de grabación */
+      /*--Animación visual de grabación--*/
       .grabando-dot { color: #ea4335; animation: parpadeo 1.5s infinite; }
       @keyframes parpadeo { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
     </style>
@@ -106,7 +106,7 @@
           </span>
         </div>
 
-        <img id="pantalla-principal" src="https://images.unsplash.com/photo-1544717305-2782549b5136?w=1200" style="width: 100%; height: 100%; object-fit: cover" />
+        <img id="pantalla-principal" src="../IMG/FondoVideollamada.jpg" style="width: 100%; height: 100%; object-fit: cover" />
 
         <div class="mi-webcam shadow-lg">
           <video id="webcam" autoplay muted style="width: 100%; height: 100%; object-fit: cover; border-radius: 9px;"></video>
@@ -185,12 +185,12 @@
     </div>
 
     <script>
-/* -- LÓGICA DE WEBRTC Y MULTIMEDIA -- */
+/*--LÓGICA DE WEBRTC Y MULTIMEDIA-- */
 let stream = null;
 let videoTrack = null;
 let audioTrack = null;
 
-// Acceso real a la cámara y micrófono del usuario
+//--Acceso real a la cámara y micrófono del usuario--
 async function iniciarCamara() {
   try {
     stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
@@ -202,7 +202,7 @@ async function iniciarCamara() {
   }
 }
 
-// Iniciar temporizador de clase al cargar
+//--Funcion que inicia temporizador de clase al cargar--
 function iniciarReloj() {
     let segundos = 0;
     setInterval(() => {
@@ -220,7 +220,7 @@ window.onload = () => {
     iniciarReloj();
 };
 
-// Controles de Hardware
+//Controles de Hardware
 function toggleCamara(btn) {
   if (!videoTrack) return;
   videoTrack.enabled = !videoTrack.enabled;
@@ -235,7 +235,7 @@ function toggleMicro(btn) {
   btn.innerHTML = audioTrack.enabled ? '<i class="bi bi-mic-fill"></i>' : '<i class="bi bi-mic-mute-fill"></i>';
 }
 
-/* -- LÓGICA DE MENSAJERÍA AVANZADA -- */
+/*--LÓGICA DE MENSAJERÍA AVANZADA-- */
 
 // 1. Buscador de mensajes
 function filtrarMensajes() {
@@ -248,13 +248,13 @@ function filtrarMensajes() {
     });
 }
 
-// 2. Enviar mensaje con detección de enlaces
+//--Funcion enviar mensaje con detección de enlaces--
 function enviarMensaje() {
     const input = document.getElementById("input-mensaje");
     let texto = input.value.trim();
     if (texto === "") return;
 
-    // Convertir URLs en enlaces clickables automáticamente
+    //--Convertir URLs en enlaces clickables automáticamente--
     const regexUrl = /(https?:\/\/[^\s]+)/g;
     texto = texto.replace(regexUrl, (url) => `<a href="${url}" target="_blank" class="text-white text-decoration-underline">${url}</a>`);
 
@@ -278,7 +278,7 @@ function enviarMensaje() {
     input.value = "";
 }
 
-// 3. Simulación de subida de archivos
+//--Simulación de subida de archivos--
 function subirArchivoSimulado() {
     const chat = document.getElementById("caja-chat");
     const div = document.createElement("div");
