@@ -36,7 +36,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['actualizar_detalles_ra
     $sql_update = "UPDATE profesores_detalles SET idiomas='$nuevos_idiomas', tiempo_respuesta='$nuevo_tiempo' WHERE usuario_id = '$mi_id'";
     
     if ($conn->query($sql_update)) {
-        // Recargamos para limpiar el POST y mostrar los nuevos datos
+        // Recargar para limpiar el POST y mostrar los nuevos datos
         header("Location: ficha-profesor.php?id=" . $perfil_id);
         exit();
     }
@@ -114,12 +114,12 @@ $res_resenas = $conn->query($sql_resenas);
                     
                     <h5 class="fw-bold border-bottom pb-2 mb-3">Presentación</h5>
                     <p class="text-muted lh-lg">
-                        <?php echo nl2br(htmlspecialchars($profe['bio'] ?? 'Este profesor está preparando su biografía detallada para ti.')); ?>
+                        <?php echo nl2br(htmlspecialchars($profe['bio'] ?? 'Este profesor está preparing su biografía detallada para ti.')); ?>
                     </p>
                 </div>
 
                 <h5 class="fw-bold mb-3 mt-5">Lo que dicen sus alumnos</h5>
-                <div class="row g-3">
+                <div class="row g-3 mb-4">
                     <?php if($res_resenas->num_rows > 0): ?>
                         <?php while($r = $res_resenas->fetch_assoc()): ?>
                         <div class="col-md-12">
@@ -138,57 +138,9 @@ $res_resenas = $conn->query($sql_resenas);
                         <div class="col-12"><p class="text-muted small">Este profesor aún no tiene reseñas. ¡Sé el primero en aprender con él!</p></div>
                     <?php endif; ?>
                 </div>
-            </div>
 
-            <div class="col-lg-4">
-                <div class="card border-0 shadow-sm p-4 rounded-4 sticky-top bg-white" style="top: 100px;">
-                    <div class="text-center mb-4 pb-3 border-bottom">
-                        <small class="text-muted fw-bold text-uppercase">Tarifa por hora</small>
-                        <h2 class="fw-bold text-dark mb-0"><?php echo number_format($profe['tarifa_hora'] ?? 15, 2); ?>€ <span class="fs-6 text-muted fw-normal">/h</span></h2>
-                    </div>
-
-                    <?php if(!$es_mi_propio_perfil): ?>
-                        <form action="../PHP/formulario_reserva_profe.php" method="POST">
-                            <input type="hidden" name="profesor_id" value="<?php echo $perfil_id; ?>">
-                            <input type="hidden" name="precio_hora" value="<?php echo $profe['tarifa_hora']; ?>">
-
-                            <div class="mb-3">
-                                <label class="form-label small fw-bold">MATERIA</label>
-                                <input type="text" name="materia" class="form-control bg-light border-0 py-2" placeholder="¿Qué quieres estudiar?" required>
-                            </div>
-
-                            <div class="mb-3">
-                                <label class="form-label small fw-bold">FECHA Y HORA</label>
-                                <input type="datetime-local" name="fecha_hora" class="form-control bg-light border-0 py-2" required>
-                            </div>
-
-                            <div class="mb-4">
-                                <label class="form-label small fw-bold">DURACIÓN</label>
-                                <select name="duracion" class="form-select bg-light border-0 py-2">
-                                    <option value="60">1 Hora</option>
-                                    <option value="90">1.5 Horas</option>
-                                    <option value="120">2 Horas</option>
-                                </select>
-                            </div>
-
-                            <button type="submit" class="btn btn-primary-custom w-100 py-3 fw-bold rounded-pill shadow-sm mb-3">
-                                <i class="bi bi-calendar-check me-2"></i> SOLICITAR RESERVA
-                            </button>
-                        </form>
-                    <?php else: ?>
-                        <div class="text-center">
-                            <div class="alert alert-secondary border-0 small mb-4 py-3">
-                                <i class="bi bi-eye-fill me-2"></i> Vista previa de tu perfil público.
-                            </div>
-                            <a href="configuracion-profesor.php" class="btn btn-dark w-100 py-3 rounded-pill fw-bold shadow-sm">
-                                <i class="bi bi-pencil-square me-2"></i> IR A CONFIGURACIÓN
-                            </a>
-                        </div>
-                    <?php endif; ?>
-                </div>
-                
-                <div class="card border-0 shadow-sm p-4 mt-4 rounded-4 bg-white">
-                    <h6 class="fw-bold small mb-3 text-uppercase text-muted">Detalles del Tutor</h6>
+                <div class="card border-0 shadow-sm p-4 mt-5 rounded-4 bg-white">
+                    <h6 class="fw-bold small mb-3 text-uppercase text-muted">Detalles del tutor</h6>
                     
                     <?php if ($es_mi_propio_perfil): ?>
                         <form action="ficha-profesor.php?id=<?php echo $perfil_id; ?>" method="POST">
@@ -228,9 +180,118 @@ $res_resenas = $conn->query($sql_resenas);
                 </div>
             </div>
 
+            <div class="col-lg-4">
+                <div class="card border-0 shadow-sm p-4 rounded-4 sticky-top bg-white" style="top: 100px;">
+                    <div class="text-center mb-4 pb-3 border-bottom">
+                        <small class="text-muted fw-bold text-uppercase">Tarifa por hora</small>
+                        <h2 class="fw-bold text-dark mb-0"><?php echo number_format($profe['tarifa_hora'] ?? 15, 2); ?>€ <span class="fs-6 text-muted fw-normal">/h</span></h2>
+                    </div>
+
+                    <?php if(!$es_mi_propio_perfil): ?>
+                        <form action="../PHP/formulario_reserva_profe.php" method="POST">
+                            <input type="hidden" name="profesor_id" value="<?php echo $perfil_id; ?>">
+                            <input type="hidden" name="precio_hora" value="<?php echo $profe['tarifa_hora']; ?>">
+
+                            <div class="mb-3">
+                                <label class="form-label small fw-bold">MATERIA</label>
+                                <input type="text" name="materia" class="form-control bg-light border-0 py-2" placeholder="¿Qué quieres estudiar?" required>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label small fw-bold">SELECCIONA UNA FECHA</label>
+                                <input type="date" id="fecha_reserva" name="fecha" class="form-control" min="<?php echo date('Y-m-d'); ?>" required>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label small fw-bold">HORAS DISPONIBLES</label>
+                                <select id="hora_reserva" name="hora" class="form-control" required disabled>
+                                    <option value="">Primero selecciona una fecha...</option>
+                                </select>
+                            </div>
+
+                            <input type="hidden" id="profesor_id" name="profesor_id" value="<?php echo $perfil_id; ?>">
+
+                            <div class="mb-4">
+                                <label class="form-label small fw-bold">DURACIÓN</label>
+                                <select id="duracion_reserva" name="duracion" class="form-select bg-light border-0 py-2">
+                                    <option value="60">1 Hora</option>
+                                    <option value="90">1.5 Horas</option>
+                                    <option value="120">2 Horas</option>
+                                </select>
+                            </div>
+
+                            <button type="submit" class="btn btn-primary-custom w-100 py-3 fw-bold rounded-pill shadow-sm mb-3">
+                                <i class="bi bi-calendar-check me-2"></i> SOLICITAR RESERVA
+                            </button>
+                        </form>
+                    <?php else: ?>
+                        <div class="text-center">
+                            <div class="alert alert-secondary border-0 small mb-4 py-3">
+                                <i class="bi bi-eye-fill me-2"></i> Vista previa de tu perfil público.
+                            </div>
+                            <a href="configuracion-profesor.php" class="btn btn-dark w-100 py-3 rounded-pill fw-bold shadow-sm">
+                                <i class="bi bi-pencil-square me-2"></i> IR A CONFIGURACIÓN
+                            </a>
+                        </div>
+                    <?php endif; ?>
+                </div>
+            </div>
+
         </div>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
+<script>
+// Función reutilizable para pedir las horas disponibles al backend
+function actualizarHorasDisponibles() {
+    const fecha = document.getElementById('fecha_reserva').value;
+    const profesorId = document.getElementById('profesor_id').value;
+    const selectHora = document.getElementById('hora_reserva');
+    const selectDuracion = document.getElementById('duracion_reserva');
+    
+    // Si no hay fecha, el campo queda congelado
+    if (!fecha) return;
+    
+    const duracion = selectDuracion ? selectDuracion.value : 60;
+    
+    selectHora.innerHTML = '<option value="">Cargando horas disponibles...</option>';
+    selectHora.disabled = true;
+    
+    const horasPosibles = ["09:00", "10:00", "11:00", "12:00", "13:00", "16:00", "17:00", "18:00", "19:00", "20:00"];
+    
+    // Enviar la duración en la URL para evitar choques futuros
+    fetch(`../PHP/obtener_disponibilidad.php?profesor_id=${profesorId}&fecha=${fecha}&duracion=${duracion}`)
+        .then(response => response.json())
+        .then(horasOcupadas => {
+            selectHora.innerHTML = '<option value="">-- Selecciona una hora --</option>';
+            
+            let horasLibres = horasPosibles.filter(hora => !horasOcupadas.includes(hora));
+            
+            if (horasLibres.length > 0) {
+                horasLibres.forEach(hora => {
+                    const option = document.createElement('option');
+                    option.value = hora;
+                    option.textContent = hora;
+                    selectHora.appendChild(option);
+                });
+                selectHora.disabled = false;
+            } else {
+                selectHora.innerHTML = '<option value="">No hay horas libres para este día</option>';
+            }
+        })
+        .catch(error => {
+            console.error("Error al cargar disponibilidad:", error);
+            selectHora.innerHTML = '<option value="">Error al cargar horas</option>';
+        });
+}
+
+// Escuchar por si cambia la fecha
+document.getElementById('fecha_reserva').addEventListener('change', actualizarHorasDisponibles);
+
+// Escuchar por si cambia la duración elegida para recalcular huecos en tiempo real
+if(document.getElementById('duracion_reserva')) {
+    document.getElementById('duracion_reserva').addEventListener('change', actualizarHorasDisponibles);
+}
+</script>
 </html>
