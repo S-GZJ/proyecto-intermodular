@@ -27,14 +27,14 @@ $alumno_id = $_SESSION['usuario_id'];
 //--CONSULTAS A LA BASE DE DATOS (Recopilación de Datos)---
 
 //--OBTENER ESTADÍSTICAS REALES--
-//Calculamos el total de clases hechas, sumamos los minutos para pasarlos a horas
-//y contamos cuántos profesores distintos ha tenido (DISTINCT)
+//Calculamos el número total de clases aceptadas,
+//las horas acumuladas y cuántos profesores distintos ha tenido el alumno
 $sql_stats = "SELECT 
                 COUNT(id) as total_clases, 
                 SUM(duracion_minutos)/60 as total_horas,
                 COUNT(DISTINCT profesor_id) as total_tutores
               FROM clases 
-              WHERE alumno_id = '$alumno_id' AND estado = 'completada'";
+              WHERE alumno_id = '$alumno_id' AND estado = 'aceptada'";
 $res_stats = $conn->query($sql_stats);
 $stats = $res_stats->fetch_assoc();
 
@@ -58,13 +58,30 @@ $sql_reservas = "SELECT c.*, u.nombre as profe_nombre
 $res_reservas = $conn->query($sql_reservas);
 
 //OBTENER HISTORIAL RECIENTE
-//Mostramos las últimas 3 clases finalizadas para que el alumno pueda valorarlas
-$sql_recientes = "SELECT c.*, u.nombre as profe_nombre 
-                  FROM clases c 
-                  JOIN usuarios u ON c.profesor_id = u.id 
-                  WHERE c.alumno_id = '$alumno_id' AND c.estado = 'completada' 
-                  ORDER BY c.fecha_hora DESC LIMIT 3";
+//Mostramos las últimas clases ya impartidas.
+//Mediante un LEFT JOIN con resenas comprobamos cuáles ya han sido valoradas
+//sin necesidad de realizar consultas adicionales.
+$sql_recientes = "SELECT
+    c.id,
+    c.materia_nombre_manual,
+    c.fecha_hora,
+    c.estado,
+    u.nombre AS profe_nombre,
+    r.id AS resena_id
+FROM clases c
+JOIN usuarios u ON c.profesor_id = u.id
+LEFT JOIN resenas r 
+    ON r.clase_id = c.id 
+    AND r.alumno_id = c.alumno_id
+WHERE c.alumno_id = '$alumno_id'
+AND c.estado = 'aceptada'
+AND c.fecha_hora < NOW()
+ORDER BY c.fecha_hora DESC
+LIMIT 10";
+
 $res_recientes = $conn->query($sql_recientes);
+
+
 
 //CONTADOR DE MENSAJES NO LEÍDOS
 //Consulta para mostrar el globo rojo de notificaciones en el icono de chat
@@ -202,20 +219,39 @@ $nombre_alumno = htmlspecialchars($_SESSION['nombre']);
             </div>
 
             <div class="col-lg-4">
-                <h5 class="fw-bold mb-3">Recientes</h5>
+                <h5 class="fw-bold mb-3">Clases realizadas</h5>
                 <div class="card border-0 shadow-sm p-3 rounded-4 bg-white">
                     <?php if($res_recientes->num_rows > 0): ?>
                         <?php while($rec = $res_recientes->fetch_assoc()): ?>
-                            <div class="d-flex align-items-center justify-content-between py-2 border-bottom last-child-border-0">
-                                <div class="overflow-hidden">
+                            <div class="d-flex align-items-center justify-content-between py-2 border-bottom">
+                                <div class="overflow-hidden me-2">
                                     <h6 class="mb-0 fw-bold small text-truncate"><?php echo htmlspecialchars($rec['materia_nombre_manual']); ?></h6>
-                                    <small class="text-muted" style="font-size: 0.7rem;">Prof. <?php echo htmlspecialchars($rec['profe_nombre']); ?></small>
+                                    <small class="text-muted d-block" style="font-size: 0.7rem;">
+                                        Prof. <?php echo htmlspecialchars($rec['profe_nombre']); ?>
+                                    </small>
+                                    <small class="text-muted" style="font-size: 0.65rem;">
+                                        <?php echo date('d M Y', strtotime($rec['fecha_hora'])); ?>
+                                    </small>
                                 </div>
-                                <a href="valorar.php?id=<?php echo $rec['id']; ?>" class="btn btn-light btn-sm rounded-circle" title="Valorar clase"><i class="bi bi-star"></i></a>
+                                <?php if ($rec['resena_id']): ?>
+                                    <!-- Clase ya valorada -->
+                                    <span class="badge rounded-pill px-2 py-1 flex-shrink-0"
+                                          style="background:rgba(59,179,189,0.12); color:var(--primary-color); font-size:0.65rem; white-space:nowrap;">
+                                        <i class="bi bi-star-fill me-1"></i>Valorada
+                                    </span>
+                                <?php else: ?>
+                                    <!-- Pendiente de valorar -->
+                                    <a href="valorar.php?id=<?php echo $rec['id']; ?>"
+                                       class="btn btn-sm rounded-pill flex-shrink-0 fw-bold"
+                                       style="background:var(--primary-color); color:#fff; font-size:0.7rem; padding:4px 10px; white-space:nowrap;"
+                                       title="Valorar al profesor">
+                                        <i class="bi bi-star me-1"></i>Valorar
+                                    </a>
+                                <?php endif; ?>
                             </div>
                         <?php endwhile; ?>
                     <?php else: ?>
-                        <p class="small text-muted text-center py-4">Aún no has completado ninguna clase.</p>
+                        <p class="small text-muted text-center py-4">Aún no tienes clases realizadas.</p>
                     <?php endif; ?>
                 </div>
             </div>

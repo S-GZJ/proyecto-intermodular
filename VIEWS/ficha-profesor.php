@@ -30,23 +30,31 @@ $es_mi_propio_perfil = ($mi_id == $perfil_id);
 /*-- LÓGICA DE ACTUALIZACIÓN RÁPIDA --*/
 // Si el profesor envía el formulario de edición rápida desde esta misma página
 if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['actualizar_detalles_rapido'])) {
+
     $nuevos_idiomas = $conn->real_escape_string($_POST['idiomas']);
     $nuevo_tiempo = $conn->real_escape_string($_POST['tiempo_respuesta']);
-    
-    $sql_update = "UPDATE profesores_detalles SET idiomas='$nuevos_idiomas', tiempo_respuesta='$nuevo_tiempo' WHERE usuario_id = '$mi_id'";
-    
+
+    $sql_update = "UPDATE profesores_detalles
+                   SET idiomas = '$nuevos_idiomas',
+                       tiempo_respuesta = '$nuevo_tiempo'
+                   WHERE usuario_id = '$mi_id'";
+
     if ($conn->query($sql_update)) {
-        // Recargamos para limpiar el POST y mostrar los nuevos datos
         header("Location: ficha-profesor.php?id=" . $perfil_id);
         exit();
     }
 }
-
 /*--CONSULTA SQL DINÁMICA ACTUALIZADA--*/
-$sql = "SELECT u.id, u.nombre, u.apellidos, pd.titulo_profesional, pd.bio, pd.tarifa_hora, 
-               pd.valoracion_media, pd.total_resenas, pd.idiomas, pd.tiempo_respuesta 
-        FROM usuarios u 
-        LEFT JOIN profesores_detalles pd ON u.id = pd.usuario_id 
+$sql = "SELECT u.id, u.nombre, u.apellidos,
+               pd.titulo_profesional,
+               pd.bio,
+               pd.tarifa_hora,
+               pd.valoracion_media,
+               pd.total_resenas,
+               pd.idiomas,
+               pd.tiempo_respuesta
+        FROM usuarios u
+        LEFT JOIN profesores_detalles pd ON u.id = pd.usuario_id
         WHERE u.id = '$perfil_id' AND u.rol = 'profesor'";
 
 $resultado = $conn->query($sql);
@@ -60,9 +68,32 @@ if (!$profe) {
 $nombre_completo = htmlspecialchars($profe['nombre'] . " " . $profe['apellidos']);
 $letra_avatar = strtoupper(substr($profe['nombre'], 0, 1));
 
-/*--CONSULTA DE RESEÑAS REALES--*/
-$sql_resenas = "SELECT r.*, u.nombre FROM resenas r JOIN usuarios u ON r.alumno_id = u.id WHERE r.profesor_id = '$perfil_id' ORDER BY r.fecha_resena DESC LIMIT 3";
+/*--CONSULTA DE RESEÑAS REALES (hasta 5 recientes) --*/
+$sql_resenas = "SELECT r.puntuacion, r.comentario, r.fecha_resena, u.nombre
+                FROM resenas r
+                JOIN usuarios u ON r.alumno_id = u.id
+                WHERE r.profesor_id = '$perfil_id'
+                ORDER BY r.fecha_resena DESC
+                LIMIT 5";
 $res_resenas = $conn->query($sql_resenas);
+
+/*--DISTRIBUCIÓN DE PUNTUACIONES (para las barras de progreso) --*/
+$sql_dist = "SELECT puntuacion, COUNT(*) as cantidad
+             FROM resenas
+             WHERE profesor_id = '$perfil_id'
+             GROUP BY puntuacion
+             ORDER BY puntuacion DESC";
+$res_dist = $conn->query($sql_dist);
+$distribucion = [5=>0, 4=>0, 3=>0, 2=>0, 1=>0];
+while ($d = $res_dist->fetch_assoc()) {
+    $distribucion[(int)$d['puntuacion']] = (int)$d['cantidad'];
+}
+// Número total de valoraciones almacenado en profesores_detalles.
+// Se utiliza para calcular el porcentaje de cada barra.
+$total_val = $profe['total_resenas'] ?? 0;
+
+// Mostrar banner de éxito si viene recién de valorar
+$valoracion_ok = (isset($_GET['status']) && $_GET['status'] === 'valoracion_ok');
 ?>
 
 <!doctype html>
@@ -118,24 +149,101 @@ $res_resenas = $conn->query($sql_resenas);
                     </p>
                 </div>
 
-                <h5 class="fw-bold mb-3 mt-5">Lo que dicen sus alumnos</h5>
+                <!-- BANNER DE ÉXITO POST-VALORACIÓN -->
+                <?php if ($valoracion_ok): ?>
+                <div class="alert border-0 rounded-4 d-flex align-items-center gap-3 mb-4"
+                     style="background:linear-gradient(135deg,rgba(59,179,189,0.12),rgba(59,179,189,0.04)); border-left:4px solid var(--primary-color) !important;">
+                    <i class="bi bi-star-fill fs-4" style="color:var(--primary-color);"></i>
+                    <div>
+                        <strong class="d-block">¡Gracias por tu valoración!</strong>
+                        <small class="text-muted">Tu opinión ayuda a otros alumnos a encontrar el mejor tutor.</small>
+                    </div>
+                </div>
+                <?php endif; ?>
+
+                <h5 class="fw-bold mb-3 mt-2">Lo que dicen sus alumnos</h5>
+
+                <!-- RESUMEN ESTADÍSTICO DE VALORACIONES -->
+                <?php if ($total_val > 0): ?>
+                <div class="card border-0 shadow-sm rounded-4 p-4 mb-4 bg-white">
+                    <div class="row align-items-center g-3">
+                        <!-- Puntuación global -->
+                        <div class="col-auto text-center" style="min-width:120px;">
+                            <div class="fw-bold" style="font-size:3rem; line-height:1; color:var(--text-dark);">
+                                <?php echo number_format($profe['valoracion_media'], 1); ?>
+                            </div>
+                            <div class="text-warning my-1" style="font-size:1.1rem;">
+                                <?php
+                                $media_r = round($profe['valoracion_media']);
+                                for($i=1;$i<=5;$i++) {
+                                    echo ($i <= $media_r)
+                                        ? '<i class="bi bi-star-fill"></i>'
+                                        : '<i class="bi bi-star text-muted"></i>';
+                                }
+                                ?>
+                            </div>
+                            <small class="text-muted"><?php echo $total_val; ?> valoraci<?php echo $total_val == 1 ? 'ón' : 'ones'; ?></small>
+                        </div>
+                        <!-- Barras de distribución -->
+                        <div class="col">
+                            <?php for($s=5; $s>=1; $s--): ?>
+                            <?php $pct = $total_val > 0 ? round(($distribucion[$s] / $total_val) * 100) : 0; ?>
+                            <div class="d-flex align-items-center gap-2 mb-1">
+                                <span class="text-muted" style="font-size:0.75rem; width:14px; text-align:right;"><?php echo $s; ?></span>
+                                <i class="bi bi-star-fill text-warning" style="font-size:0.65rem;"></i>
+                                <div class="flex-grow-1 rounded-pill" style="height:8px; background:#f0f0f0; overflow:hidden;">
+                                    <div class="rounded-pill h-100" style="width:<?php echo $pct; ?>%; background:var(--primary-color); transition:width 0.6s ease;"></div>
+                                </div>
+                                <span class="text-muted" style="font-size:0.72rem; width:20px;"><?php echo $distribucion[$s]; ?></span>
+                            </div>
+                            <?php endfor; ?>
+                        </div>
+                    </div>
+                </div>
+                <?php endif; ?>
+
+                <!-- LISTADO DE RESEÑAS -->
                 <div class="row g-3">
                     <?php if($res_resenas->num_rows > 0): ?>
                         <?php while($r = $res_resenas->fetch_assoc()): ?>
                         <div class="col-md-12">
-                            <div class="card border-0 shadow-sm p-3 rounded-4 bg-white">
-                                <div class="d-flex justify-content-between mb-2">
-                                    <span class="fw-bold small"><?php echo htmlspecialchars($r['nombre']); ?></span>
+                            <div class="card border-0 shadow-sm p-4 rounded-4 bg-white">
+                                <div class="d-flex justify-content-between align-items-start mb-2">
+                                    <div class="d-flex align-items-center gap-2">
+                                        <div class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center fw-bold"
+                                             style="width:36px; height:36px; font-size:0.9rem; flex-shrink:0;">
+                                            <?php echo strtoupper(substr($r['nombre'], 0, 1)); ?>
+                                        </div>
+                                        <div>
+                                            <span class="fw-bold small d-block"><?php echo htmlspecialchars($r['nombre']); ?></span>
+                                            <small class="text-muted" style="font-size:0.7rem;">
+                                                <?php echo date('d M Y', strtotime($r['fecha_resena'])); ?>
+                                            </small>
+                                        </div>
+                                    </div>
                                     <div class="text-warning small">
-                                        <?php for($i=0; $i<$r['puntuacion']; $i++) echo '<i class="bi bi-star-fill"></i>'; ?>
+                                        <?php for($i=1;$i<=5;$i++) {
+                                            echo ($i <= $r['puntuacion'])
+                                                ? '<i class="bi bi-star-fill"></i>'
+                                                : '<i class="bi bi-star text-muted"></i>';
+                                        } ?>
                                     </div>
                                 </div>
-                                <p class="text-muted small mb-0 fst-italic">"<?php echo htmlspecialchars($r['comentario']); ?>"</p>
+                                <?php if (!empty($r['comentario'])): ?>
+                                <p class="text-muted small mb-0 fst-italic ps-1">&ldquo;<?php echo nl2br(htmlspecialchars($r['comentario'])); ?>&rdquo;</p>
+                                <?php else: ?>
+                                <p class="text-muted small mb-0 fst-italic">Sin comentario adicional.</p>
+                                <?php endif; ?>
                             </div>
                         </div>
                         <?php endwhile; ?>
                     <?php else: ?>
-                        <div class="col-12"><p class="text-muted small">Este profesor aún no tiene reseñas. ¡Sé el primero en aprender con él!</p></div>
+                        <div class="col-12">
+                            <div class="card border-0 shadow-sm p-4 rounded-4 bg-white text-center">
+                                <i class="bi bi-chat-square-text text-muted fs-3 mb-2"></i>
+                                <p class="text-muted small mb-0">Este profesor aún no tiene reseñas. ¡Sé el primero en aprender con él!</p>
+                            </div>
+                        </div>
                     <?php endif; ?>
                 </div>
             </div>
