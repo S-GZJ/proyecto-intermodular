@@ -249,23 +249,6 @@ ALTER TABLE `metodos_pago`
 ALTER TABLE `resenas`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
--- --------------------------------------------------------
--- NOTA PARA EL DESARROLLADOR:
--- La tabla `resenas` y sus columnas de soporte en `profesores_detalles`
--- ya existen en el esquema original. El sistema de valoraciones usa:
---
---   resenas (clase_id, profesor_id, alumno_id, puntuacion, comentario)
---   profesores_detalles (valoracion_media, total_resenas)
---
--- El controlador PHP/guardar_valoracion.php se encarga de:
---   1. Insertar la nueva reseña en `resenas`.
---   2. Recalcular y actualizar `valoracion_media` y `total_resenas`
---      en `profesores_detalles` automáticamente tras cada valoración.
---
--- Para probar el sistema, cambia el estado de una clase a 'completada':
--- UPDATE clases SET estado = 'completada' WHERE id = 1;
--- --------------------------------------------------------
-
 --
 -- AUTO_INCREMENT de la tabla `usuarios`
 --
